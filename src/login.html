@@ -273,7 +273,7 @@
                 "success"
             );
 setTimeout(() => {
-    window.location.href = "./order.html";
+    window.location.href = data.user.role === "admin" ? "./admin.html" : "./order.html";
 }, 800);
 
         } catch (error) {
