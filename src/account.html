@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account | PK-BOOSTER</title>
+    <link href="./output.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #FCF9FC;
+            color: #211625;
+        }
+
+        .brand {
+            color: #A900A9;
+        }
+
+        .brand-bg {
+            background: #A900A9;
+        }
+
+        .brand-light {
+            background: #FCE7FC;
+        }
+
+        .nav-link {
+            padding: 11px 15px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .nav-link:hover {
+            background: #FCE7FC;
+            color: #A900A9;
+        }
+
+        .nav-active {
+            background: #FCE7FC;
+            color: #A900A9;
+        }
+
+        .account-card {
+            background: white;
+            border: 1px solid #E8DCE8;
+            border-radius: 18px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 48px;
+            border: 1px solid #E0D5E2;
+            border-radius: 13px;
+            padding: 0 14px;
+            font-size: 14px;
+            outline: none;
+            background: white;
+            transition: 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: #A900A9;
+            box-shadow: 0 0 0 3px #FCE7FC;
+        }
+
+        .form-input:disabled {
+            background: #F8F4F8;
+            color: #817486;
+        }
+
+        .primary-button {
+            background: #A900A9;
+            color: white;
+            border-radius: 13px;
+            transition: 0.2s;
+        }
+
+        .primary-button:hover {
+            background: #8D008D;
+        }
+
+        .secondary-button {
+            border: 1px solid #E0D5E2;
+            background: white;
+            border-radius: 13px;
+            transition: 0.2s;
+        }
+
+        .secondary-button:hover {
+            background: #F8F4F8;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 50px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #817486;
+            cursor: pointer;
+        }
+
+        .status-message {
+            display: none;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+
+        .status-success {
+            display: block;
+            background: #E7F8EE;
+            color: #087A45;
+        }
+
+        .status-error {
+            display: block;
+            background: #FDE8E8;
+            color: #D92828;
+        }
+
+        @media (max-width: 640px) {
+            .nav-link {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .form-input {
+                height: 46px;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+
+    <header class="sticky top-0 z-50 bg-white border-b border-[#E8DCE8]">
+
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+            <div class="h-[65px] flex items-center justify-between">
+
+                <a href="index.html" class="flex flex-col leading-none">
+
+                    <span class="text-2xl sm:text-3xl font-extrabold brand tracking-tight">
+                        PK
+                    </span>
+
+                    <span class="text-[10px] sm:text-xs font-extrabold brand tracking-[2px]">
+                        BOOSTER
+                    </span>
+
+                </a>
+
+                <nav class="hidden md:flex items-center gap-1">
+
+                    <a href="order.html" class="nav-link">
+                        Order
+                    </a>
+
+                    <a href="orders.html" class="nav-link">
+                        My orders
+                    </a>
+
+                    <a href="wallet.html" class="nav-link">
+                        Wallet
+                    </a>
+
+                    <a href="more.html" class="nav-link nav-active">
+                        More
+                    </a>
+
+                </nav>
+
+                <div class="flex items-center gap-2">
+
+                    <a href="wallet.html" class="flex items-center gap-2 border border-[#E8DCE8] rounded-full pl-3 pr-1 py-1">
+
+                        <span id="headerBalance" class="text-xs sm:text-sm font-bold">
+                            ₦0.00
+                        </span>
+
+                        <span class="w-8 h-8 brand-bg rounded-full flex items-center justify-center text-white">
+
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 5v14M5 12h14"/>
+                            </svg>
+
+                        </span>
+
+                    </a>
+
+                    <button class="flex items-center gap-2 border border-[#E8DCE8] rounded-xl px-3 py-2.5 text-xs font-semibold">
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        </svg>
+
+                        EN
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <nav class="md:hidden flex items-center gap-1 overflow-x-auto pb-2">
+
+                <a href="order.html" class="nav-link whitespace-nowrap">
+                    Order
+                </a>
+
+                <a href="orders.html" class="nav-link whitespace-nowrap">
+                    My orders
+                </a>
+
+                <a href="wallet.html" class="nav-link whitespace-nowrap">
+                    Wallet
+                </a>
+
+                <a href="more.html" class="nav-link nav-active whitespace-nowrap">
+                    More
+                </a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+
+        <div class="max-w-[640px] mx-auto">
+
+            <a href="more.html" class="inline-flex items-center gap-2 text-sm text-[#817486] hover:text-[#A900A9] mb-6">
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m15 18-6-6 6-6"/>
+                </svg>
+
+                Back to More
+
+            </a>
+
+            <div class="mb-6">
+
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                    Account
+                </h1>
+
+                <p class="text-sm text-[#817486] mt-2">
+                    Manage your email and password.
+                </p>
+
+            </div>
+
+            <div id="statusMessage" class="status-message"></div>
+
+            <section class="account-card p-4 sm:p-6 mb-5">
+
+                <div class="flex items-center gap-3 mb-6">
+
+                    <div class="w-12 h-12 rounded-full brand-light brand flex items-center justify-center font-bold text-lg" id="profileInitial">
+                        P
+                    </div>
+
+                    <div class="min-w-0">
+
+                        <h2 id="profileUsername" class="font-bold text-sm sm:text-base truncate">
+                            Your account
+                        </h2>
+
+                        <p id="profileEmail" class="text-xs text-[#817486] mt-1 truncate">
+                            Manage your account information
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <form id="emailForm">
+
+                    <div class="mb-5">
+
+                        <label for="currentEmail" class="form-label">
+                            Current email
+                        </label>
+
+                        <input
+                            type="email"
+                            id="currentEmail"
+                            class="form-input"
+                            disabled
+                        >
+
+                    </div>
+
+                    <div class="mb-5">
+
+                        <label for="newEmail" class="form-label">
+                            New email address
+                        </label>
+
+                        <input
+                            type="email"
+                            id="newEmail"
+                            class="form-input"
+                            placeholder="Enter your new email"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="mb-5">
+
+                        <label for="emailPassword" class="form-label">
+                            Current password
+                        </label>
+
+                        <div class="password-wrapper">
+
+                            <input
+                                type="password"
+                                id="emailPassword"
+                                class="form-input"
+                                placeholder="Enter your current password"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button type="button" class="password-toggle" data-toggle="emailPassword">
+
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <button type="submit" id="emailSubmit" class="primary-button w-full py-3.5 font-bold text-sm">
+                        Update email
+                    </button>
+
+                </form>
+
+            </section>
+
+            <section class="account-card p-4 sm:p-6">
+
+                <div class="mb-6">
+
+                    <h2 class="text-lg font-bold">
+                        Change password
+                    </h2>
+
+                    <p class="text-xs text-[#817486] mt-2">
+                        Choose a strong password to protect your account.
+                    </p>
+
+                </div>
+
+                <form id="passwordForm">
+
+                    <div class="mb-5">
+
+                        <label for="currentPassword" class="form-label">
+                            Current password
+                        </label>
+
+                        <div class="password-wrapper">
+
+                            <input
+                                type="password"
+                                id="currentPassword"
+                                class="form-input"
+                                placeholder="Enter current password"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button type="button" class="password-toggle" data-toggle="currentPassword">
+
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="mb-5">
+
+                        <label for="newPassword" class="form-label">
+                            New password
+                        </label>
+
+                        <div class="password-wrapper">
+
+                            <input
+                                type="password"
+                                id="newPassword"
+                                class="form-input"
+                                placeholder="Create a new password"
+                                autocomplete="new-password"
+                                minlength="8"
+                                required
+                            >
+
+                            <button type="button" class="password-toggle" data-toggle="newPassword">
+
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+
+                            </button>
+
+                        </div>
+
+                        <p class="text-xs text-[#817486] mt-2">
+                            Your password must contain at least 8 characters.
+                        </p>
+
+                    </div>
+
+                    <div class="mb-6">
+
+                        <label for="confirmPassword" class="form-label">
+                            Confirm new password
+                        </label>
+
+                        <div class="password-wrapper">
+
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                class="form-input"
+                                placeholder="Confirm your new password"
+                                autocomplete="new-password"
+                                minlength="8"
+                                required
+                            >
+
+                            <button type="button" class="password-toggle" data-toggle="confirmPassword">
+
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <button type="submit" id="passwordSubmit" class="primary-button w-full py-3.5 font-bold text-sm">
+                        Update password
+                    </button>
+
+                </form>
+
+            </section>
+
+            <footer class="text-center text-xs text-[#817486] py-8">
+                © 2026 PK-BOOSTER. All rights reserved.
+            </footer>
+
+        </div>
+
+    </main>
+
+    <script>
+
+        const currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+
+        const statusMessage = document.getElementById("statusMessage");
+
+        function showMessage(message, type) {
+
+            statusMessage.textContent = message;
+
+            statusMessage.className = "status-message";
+
+            statusMessage.classList.add(
+                type === "success" ? "status-success" : "status-error"
+            );
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+
+        }
+
+        function getUserEmail() {
+
+            return currentUser?.email || "";
+
+        }
+
+        function getUserName() {
+
+            return currentUser?.username || getUserEmail().split("@")[0] || "User";
+
+        }
+
+        function formatBalance(balance) {
+
+            return Number(balance || 0).toLocaleString("en-NG", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+        }
+
+        if (!currentUser) {
+
+            window.location.href = "login.html";
+
+        } else {
+
+            const email = getUserEmail();
+
+            const username = getUserName();
+
+            document.getElementById("profileUsername").textContent = "@" + username;
+
+            document.getElementById("profileEmail").textContent = email;
+
+            document.getElementById("profileInitial").textContent =
+                username.charAt(0).toUpperCase();
+
+            document.getElementById("currentEmail").value = email;
+
+            document.getElementById("headerBalance").textContent =
+                "₦" + formatBalance(currentUser.balance);
+
+        }
+
+        document.querySelectorAll("[data-toggle]").forEach(button => {
+
+            button.addEventListener("click", () => {
+
+                const input = document.getElementById(button.dataset.toggle);
+
+                input.type = input.type === "password" ? "text" : "password";
+
+            });
+
+        });
+
+        document.getElementById("emailForm").addEventListener("submit", async event => {
+
+            event.preventDefault();
+
+            const newEmail = document.getElementById("newEmail").value.trim();
+
+            const password = document.getElementById("emailPassword").value;
+
+            if (!newEmail || !password) {
+
+                showMessage("Please complete all fields.", "error");
+
+                return;
+
+            }
+
+            if (newEmail.toLowerCase() === getUserEmail().toLowerCase()) {
+
+                showMessage("This is already your current email.", "error");
+
+                return;
+
+            }
+
+            showMessage(
+                "Email updates require backend verification. Connect your account API to complete this securely.",
+                "error"
+            );
+
+        });
+
+        document.getElementById("passwordForm").addEventListener("submit", async event => {
+
+            event.preventDefault();
+
+            const currentPassword = document.getElementById("currentPassword").value;
+
+            const newPassword = document.getElementById("newPassword").value;
+
+            const confirmPassword = document.getElementById("confirmPassword").value;
+
+            if (newPassword.length < 8) {
+
+                showMessage("Your new password must contain at least 8 characters.", "error");
+
+                return;
+
+            }
+
+            if (newPassword !== confirmPassword) {
+
+                showMessage("Your new passwords do not match.", "error");
+
+                return;
+
+            }
+
+            if (currentPassword === newPassword) {
+
+                showMessage("Choose a password different from your current password.", "error");
+
+                return;
+
+            }
+
+            showMessage(
+                "Password updates require backend verification. Connect your account API to complete this securely.",
+                "error"
+            );
+
+        });
+
+    </script>
+
+</body>
+</html>

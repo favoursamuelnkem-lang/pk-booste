@@ -1,0 +1,542 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Account | PK-BOOSTER</title>
+
+    <link href="./output.css" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 48px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 0;
+            top: 0;
+            display: flex;
+            height: 48px;
+            width: 48px;
+            align-items: center;
+            justify-content: center;
+            color: #766B80;
+            transition: 0.2s;
+        }
+
+        .password-toggle:hover {
+            color: #7C3AED;
+        }
+
+        .input-field {
+            height: 48px;
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid #DED1E4;
+            background: white;
+            padding: 0 16px;
+            font-size: 14px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .input-field:focus {
+            border-color: #7C3AED;
+            box-shadow: 0 0 0 2px rgb(124 58 237 / 10%);
+        }
+
+        .input-field.error {
+            border-color: #DC2626;
+        }
+
+        .primary-button {
+            background: #7C3AED;
+            transition: 0.2s;
+        }
+
+        .primary-button:hover {
+            background: #6D28D9;
+        }
+
+        .primary-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .message {
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        @media (max-width: 640px) {
+            .input-field {
+                height: 46px;
+            }
+
+            .password-toggle {
+                height: 46px;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-[#FCF9FC] text-[#19131F]">
+
+    <header class="border-b border-[#EEE3EF] bg-white">
+
+        <div class="mx-auto flex h-[56px] max-w-[1140px] items-center justify-between px-5 sm:px-8">
+<a href="./index.html" class="flex items-center gap-2">
+    <div class="flex h-8 w-8 items-center justify-center rounded-xl bg-[#7C3AED]">
+        <span class="text-sm font-black text-white">PK</span>
+    </div>
+
+    <div class="flex flex-col leading-none">
+        <span class="text-base font-extrabold tracking-tight text-[#19131F]">
+            PK-BOOSTER
+        </span>
+
+        <span class="mt-1 text-[9px] font-bold tracking-[1.5px] text-[#7C3AED]">
+            SOCIAL GROWTH
+        </span>
+    </div>
+</a>
+
+            <button
+                type="button"
+                class="flex items-center gap-2 rounded-xl border border-[#E4D8E7] px-3 py-2 text-sm font-semibold"
+            >
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="M3 12h18"/>
+                    <path d="M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9"/>
+                    <path d="M12 3c-2.5 2.5-3.5 5.5-3.5 9s1 6.5 3.5 9"/>
+                </svg>
+
+                EN
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path d="m6 9 6 6 6-6"/>
+                </svg>
+
+            </button>
+
+        </div>
+
+    </header>
+
+    <main class="flex min-h-[calc(100vh-56px)] justify-center px-5 py-8 sm:py-12">
+
+        <div class="w-full max-w-[428px]">
+
+            <div class="mb-6">
+
+                <h1 class="text-3xl font-extrabold tracking-tight sm:text-[32px]">
+                    Create your account
+                </h1>
+
+                <p class="mt-2 text-sm text-[#766B80] sm:text-base">
+                    Join PK-BOOSTER and grow your social media.
+                </p>
+
+            </div>
+
+            <div
+                id="registerMessage"
+                class="message mb-5 rounded-xl px-4 py-3 text-sm"
+                role="alert"
+            ></div>
+
+            <form id="registerForm" class="space-y-5">
+
+                <div>
+
+                    <label for="username" class="mb-2 block text-sm font-semibold">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        autocomplete="username"
+                        minlength="3"
+                        maxlength="30"
+                        pattern="[A-Za-z0-9_]+"
+                        placeholder="Choose a username"
+                        required
+                        class="input-field"
+                    >
+
+                    <p class="mt-2 text-xs text-[#82788A]">
+                        Use 3–30 letters, numbers, or underscores.
+                    </p>
+
+                </div>
+
+                <div>
+
+                    <label for="email" class="mb-2 block text-sm font-semibold">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        autocomplete="email"
+                        placeholder="Enter your email address"
+                        required
+                        class="input-field"
+                    >
+
+                </div>
+
+                <div>
+
+                    <label for="password" class="mb-2 block text-sm font-semibold">
+                        Password
+                    </label>
+
+                    <div class="password-wrapper">
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            autocomplete="new-password"
+                            minlength="8"
+                            placeholder="Create a password"
+                            required
+                            class="input-field"
+                        >
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            data-toggle="password"
+                            aria-label="Show password"
+                        >
+
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+
+                        </button>
+
+                    </div>
+
+                    <p class="mt-2 text-xs text-[#82788A]">
+                        Your password must contain at least 8 characters.
+                    </p>
+
+                </div>
+
+                <div>
+
+                    <label for="confirmPassword" class="mb-2 block text-sm font-semibold">
+                        Confirm password
+                    </label>
+
+                    <div class="password-wrapper">
+
+                        <input
+                            type="password"
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            autocomplete="new-password"
+                            minlength="8"
+                            placeholder="Confirm your password"
+                            required
+                            class="input-field"
+                        >
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            data-toggle="confirmPassword"
+                            aria-label="Show password"
+                        >
+
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="pt-1">
+
+                    <label class="flex items-start gap-3 cursor-pointer">
+
+                        <input
+                            type="checkbox"
+                            id="terms"
+                            name="terms"
+                            required
+                            class="mt-1 h-4 w-4 shrink-0 accent-[#7C3AED]"
+                        >
+
+                        <span class="text-xs leading-5 text-[#766B80]">
+
+                            I agree to the
+
+                            <a href="./terms.html" class="font-semibold text-[#7C3AED] underline underline-offset-2">
+                                Terms of Service
+                            </a>
+
+                            and
+
+                            <a href="./privacy.html" class="font-semibold text-[#7C3AED] underline underline-offset-2">
+                                Privacy Policy
+                            </a>.
+
+                        </span>
+
+                    </label>
+
+                </div>
+
+                <button
+                    type="submit"
+                    id="registerButton"
+                    class="primary-button flex h-[54px] w-full items-center justify-center rounded-xl text-base font-bold text-white"
+                >
+                    Create account
+                </button>
+
+            </form>
+
+            <div class="mt-5 text-center">
+
+                <p class="text-sm">
+
+                    Already have an account?
+
+                    <a
+                        href="./login.html"
+                        class="font-semibold text-[#7C3AED] underline underline-offset-2 transition hover:text-[#6D28D9]"
+                    >
+                        Log in
+                    </a>
+
+                </p>
+
+            </div>
+
+            <div class="mt-10 text-center">
+
+                <p class="text-xs text-[#817486]">
+                    © 2026 PK-BOOSTER. All rights reserved.
+                </p>
+
+            </div>
+
+        </div>
+
+    </main>
+
+ <script>
+    const registerForm = document.getElementById("registerForm");
+    const registerButton = document.getElementById("registerButton");
+    const registerMessage = document.getElementById("registerMessage");
+
+    const passwordInput = document.getElementById("password");
+    const confirmPasswordInput = document.getElementById("confirmPassword");
+
+    // Backend URL
+    const API_URL = "http://localhost:5000";
+
+    function showMessage(message, type) {
+        registerMessage.textContent = message;
+
+        registerMessage.className =
+            "message mb-5 rounded-xl px-4 py-3 text-sm show";
+
+        if (type === "error") {
+            registerMessage.classList.add(
+                "bg-red-50",
+                "text-red-600"
+            );
+        }
+
+        if (type === "success") {
+            registerMessage.classList.add(
+                "bg-purple-50",
+                "text-purple-700"
+            );
+        }
+
+        registerMessage.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+        });
+    }
+
+    // Show and hide password
+    document.querySelectorAll("[data-toggle]").forEach(button => {
+        button.addEventListener("click", () => {
+            const input = document.getElementById(
+                button.dataset.toggle
+            );
+
+            const isPassword = input.type === "password";
+
+            input.type = isPassword ? "text" : "password";
+
+            button.setAttribute(
+                "aria-label",
+                isPassword ? "Hide password" : "Show password"
+            );
+        });
+    });
+
+    // Registration
+    registerForm.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        const username = document.getElementById("username").value.trim();
+
+        const email = document.getElementById("email").value.trim();
+
+        const password = passwordInput.value;
+
+        const confirmPassword = confirmPasswordInput.value;
+
+        const termsAccepted = document.getElementById("terms").checked;
+
+        // Validate username
+        if (!/^[A-Za-z0-9_]{3,30}$/.test(username)) {
+            showMessage(
+                "Username must contain 3–30 letters, numbers, or underscores.",
+                "error"
+            );
+            return;
+        }
+
+        // Validate email
+        if (!email) {
+            showMessage(
+                "Please enter your email address.",
+                "error"
+            );
+            return;
+        }
+
+        // Validate password
+        if (password.length < 8) {
+            showMessage(
+                "Your password must contain at least 8 characters.",
+                "error"
+            );
+            return;
+        }
+
+        // Confirm password
+        if (password !== confirmPassword) {
+            showMessage(
+                "Your passwords do not match.",
+                "error"
+            );
+
+            confirmPasswordInput.focus();
+            return;
+        }
+
+        // Terms
+        if (!termsAccepted) {
+            showMessage(
+                "Please accept the Terms of Service and Privacy Policy.",
+                "error"
+            );
+            return;
+        }
+
+        registerButton.disabled = true;
+
+        registerButton.textContent = "Creating account...";
+
+        try {
+            const response = await fetch(`${API_URL}/register`, {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+body: JSON.stringify({
+    fullName: username,
+    email,
+    password
+})
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Registration failed."
+                );
+            }
+
+            showMessage(
+                "Account created successfully! Redirecting to login...",
+                "success"
+            );
+
+            registerForm.reset();
+
+            setTimeout(() => {
+                window.location.href = "./login.html";
+            }, 1500);
+
+        } catch (error) {
+            console.error("Registration error:", error);
+
+            if (error instanceof TypeError) {
+                showMessage(
+                    "Cannot connect to the backend. Make sure your server is running on port 5000.",
+                    "error"
+                );
+            } else {
+                showMessage(
+                    error.message || "Something went wrong. Please try again.",
+                    "error"
+                );
+            }
+
+        } finally {
+            registerButton.disabled = false;
+
+            registerButton.textContent = "Create account";
+        }
+    });
+</script>
+
+</body>
+
+</html>

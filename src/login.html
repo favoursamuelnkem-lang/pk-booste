@@ -1,0 +1,302 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login | PK-BOOSTER</title>
+
+    <link href="./output.css" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+
+<body class="min-h-screen bg-[#FCF9FC] font-sans text-[#19131F]">
+
+    <header class="border-b border-[#EEE3EF] bg-white">
+        <div class="mx-auto flex h-[56px] max-w-[1140px] items-center justify-between px-5 sm:px-8">
+
+            <a href="./index.html" class="flex items-center gap-2">
+                <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#7C3AED]">
+                    <span class="text-lg font-black text-white">PK</span>
+                </div>
+
+                <div class="flex flex-col leading-none">
+                    <span class="text-lg font-extrabold tracking-tight">PK-BOOSTER</span>
+                    <span class="mt-1 text-[9px] font-bold tracking-[1.5px] text-[#7C3AED]">SOCIAL GROWTH</span>
+                </div>
+            </a>
+
+            <button type="button" class="flex items-center gap-2 rounded-xl border border-[#E4D8E7] px-3 py-2 text-sm font-semibold">
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="M3 12h18"/>
+                    <path d="M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9"/>
+                    <path d="M12 3c-2.5 2.5-3.5 5.5-3.5 9s1 6.5 3.5 9"/>
+                </svg>
+
+                EN
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path d="m6 9 6 6 6-6"/>
+                </svg>
+
+            </button>
+
+        </div>
+    </header>
+
+    <main class="flex min-h-[calc(100vh-56px)] justify-center px-5 py-10 sm:py-16">
+
+        <div class="w-full max-w-[428px]">
+
+            <div class="mb-5">
+                <h1 class="text-3xl font-extrabold tracking-tight sm:text-[32px]">
+                    Welcome back
+                </h1>
+
+                <p class="mt-2 text-sm text-[#766B80] sm:text-base">
+                    Log in to grow your social media.
+                </p>
+            </div>
+
+            <form id="loginForm" class="space-y-5">
+
+                <div>
+                    <label for="email" class="mb-2 block text-sm font-semibold">
+                        Email
+                    </label>
+
+                    <input
+                        type="text"
+                        id="email"
+                        name="email"
+                        autocomplete="username"
+                        placeholder=""
+                        required
+                        class="h-[48px] w-full rounded-xl border border-[#DED1E4] bg-white px-4 text-sm outline-none transition focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/10"
+                    >
+
+                    <p class="mt-2 text-xs text-[#82788A] sm:text-sm">
+                        Old account without an email? Your username works too.
+                    </p>
+                </div>
+
+                <div>
+                    <label for="password" class="mb-2 block text-sm font-semibold">
+                        Password
+                    </label>
+
+                    <div class="relative">
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            autocomplete="current-password"
+                            required
+                            class="h-[48px] w-full rounded-xl border border-[#DED1E4] bg-white px-4 pr-12 text-sm outline-none transition focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/10"
+                        >
+
+                        <button
+                            type="button"
+                            id="togglePassword"
+                            aria-label="Show password"
+                            class="absolute right-0 top-0 flex h-[48px] w-12 items-center justify-center text-[#766B80] transition hover:text-[#7C3AED]"
+                        >
+
+                            <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+
+                        </button>
+
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+
+                    <a
+                        href="./forgot-password.html"
+                        class="text-sm font-semibold text-[#7C3AED] transition hover:text-[#6D28D9]"
+                    >
+                        Forgot your password?
+                    </a>
+
+                </div>
+
+                <button
+                    type="submit"
+                    id="loginButton"
+                    class="flex h-[54px] w-full items-center justify-center rounded-xl bg-[#7C3AED] text-base font-bold text-white transition hover:bg-[#6D28D9] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                    Log in
+                </button>
+
+                <p id="loginMessage" class="hidden rounded-xl px-4 py-3 text-sm"></p>
+
+            </form>
+
+            <div class="mt-5 text-center">
+
+                <p class="text-sm">
+                    New here?
+
+                    <a
+                        href="./register.html"
+                        class="font-semibold text-[#7C3AED] underline underline-offset-2 transition hover:text-[#6D28D9]"
+                    >
+                        Create a free account
+                    </a>
+                </p>
+
+            </div>
+
+        </div>
+
+    </main>
+<script>
+    const API_URL = "http://localhost:5000";
+
+    const passwordInput = document.getElementById("password");
+    const togglePassword = document.getElementById("togglePassword");
+    const eyeIcon = document.getElementById("eyeIcon");
+
+    const loginForm = document.getElementById("loginForm");
+    const loginMessage = document.getElementById("loginMessage");
+    const loginButton = document.getElementById("loginButton");
+
+    // Show and hide password
+    togglePassword.addEventListener("click", () => {
+        const isPassword = passwordInput.type === "password";
+
+        passwordInput.type = isPassword ? "text" : "password";
+
+        togglePassword.setAttribute(
+            "aria-label",
+            isPassword ? "Hide password" : "Show password"
+        );
+
+        eyeIcon.innerHTML = isPassword
+            ? '<path d="M3 3l18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.5 10.5 0 0 1 12 5c6.5 0 10 7 10 7a15.5 15.5 0 0 1-3.2 4.1"/><path d="M6.2 6.2C3.5 8.1 2 12 2 12s3.5 7 10 7a10.5 10.5 0 0 0 4.1-.8"/>'
+            : '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>';
+    });
+
+    // Display login messages
+    function showMessage(message, type) {
+        loginMessage.textContent = message;
+
+        loginMessage.className =
+            "rounded-xl px-4 py-3 text-sm";
+
+        if (type === "success") {
+            loginMessage.classList.add(
+                "bg-purple-50",
+                "text-purple-700"
+            );
+        } else {
+            loginMessage.classList.add(
+                "bg-red-50",
+                "text-red-600"
+            );
+        }
+    }
+
+    // Login
+    loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const email = document.getElementById("email").value.trim();
+
+        const password = passwordInput.value;
+
+        if (!email || !password) {
+            showMessage(
+                "Please enter your email and password.",
+                "error"
+            );
+            return;
+        }
+
+        loginButton.disabled = true;
+
+        loginButton.textContent = "Logging in...";
+
+        try {
+            const response = await fetch(`${API_URL}/login`, {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    email,
+                    password
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    "Login failed. Please check your details."
+                );
+            }
+
+            if (!data.token || !data.user) {
+                throw new Error(
+                    "Login response is missing the user or authentication token."
+                );
+            }
+
+            // Save authentication token
+            localStorage.setItem("token", data.token);
+
+            // Save logged-in user
+            localStorage.setItem(
+                "currentUser",
+                JSON.stringify(data.user)
+            );
+
+            showMessage(
+                "Login successful! Redirecting...",
+                "success"
+            );
+setTimeout(() => {
+    window.location.href = "./order.html";
+}, 800);
+
+        } catch (error) {
+            console.error("Login error:", error);
+
+            if (error instanceof TypeError) {
+                showMessage(
+                    "Cannot connect to the backend. Make sure your server is running.",
+                    "error"
+                );
+            } else {
+                showMessage(
+                    error.message || "Login failed. Please try again.",
+                    "error"
+                );
+            }
+
+            loginButton.disabled = false;
+
+            loginButton.textContent = "Log in";
+        }
+    });
+</script>
+</body>
+
+</html>

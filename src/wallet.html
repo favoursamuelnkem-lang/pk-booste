@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet | PK-BOOSTER</title>
+    <link href="./output.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body class="min-h-screen bg-[#FCF9FC] font-['Inter'] text-[#19131F]">
+
+<header class="sticky top-0 z-50 border-b border-[#EEE3EF] bg-white">
+    <div class="mx-auto flex h-[55px] max-w-[1100px] items-center justify-between gap-3 px-4 sm:px-6">
+
+        <a href="./order.html" class="flex shrink-0 items-center gap-2">
+            <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#7C3AED]">
+                <span class="text-lg font-black text-white">PK</span>
+            </div>
+
+            <div class="hidden flex-col leading-none sm:flex">
+                <span class="text-lg font-extrabold tracking-tight">PK-BOOSTER</span>
+                <span class="mt-1 text-[9px] font-bold tracking-[1.5px] text-[#7C3AED]">SOCIAL GROWTH</span>
+            </div>
+        </a>
+
+        <nav class="hidden items-center gap-1 md:flex">
+            <a href="./order.html" class="rounded-xl px-4 py-2.5 text-sm font-semibold text-[#62586C] hover:bg-[#FAF5FB]">
+                Order
+            </a>
+
+            <a href="./my-orders.html" class="rounded-xl px-4 py-2.5 text-sm font-semibold text-[#62586C] hover:bg-[#FAF5FB]">
+                My orders
+            </a>
+
+            <a href="./wallet.html" class="rounded-xl bg-[#F8EFFF] px-4 py-2.5 text-sm font-semibold text-[#7C3AED]">
+                Wallet
+            </a>
+
+            <button id="moreButton" type="button" class="rounded-xl px-4 py-2.5 text-sm font-semibold text-[#62586C] hover:bg-[#FAF5FB]">
+                More
+            </button>
+        </nav>
+
+        <div class="flex shrink-0 items-center gap-2">
+            <a href="./wallet.html" class="flex items-center gap-2 rounded-full border border-[#E8DCEC] py-1 pl-3 pr-1">
+                <span id="headerBalance" class="text-xs font-bold sm:text-sm">₦0.00</span>
+
+                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-[#7C3AED] text-xl font-medium text-white">
+                    +
+                </span>
+            </a>
+
+            <button type="button" class="flex items-center gap-1.5 rounded-xl border border-[#E8DCEC] px-2.5 py-2 text-xs font-semibold sm:text-sm">
+                <span>◎</span>
+                EN
+                <span>⌄</span>
+            </button>
+        </div>
+    </div>
+
+    <nav class="flex justify-center gap-1 border-t border-[#F3EDF5] px-3 py-2 md:hidden">
+        <a href="./order.html" class="rounded-lg px-3 py-2 text-xs font-semibold text-[#62586C]">
+            Order
+        </a>
+
+        <a href="./my-orders.html" class="rounded-lg px-3 py-2 text-xs font-semibold text-[#62586C]">
+            My orders
+        </a>
+
+        <a href="./wallet.html" class="rounded-lg bg-[#F8EFFF] px-3 py-2 text-xs font-semibold text-[#7C3AED]">
+            Wallet
+        </a>
+
+        <button id="mobileMoreButton" type="button" class="rounded-lg px-3 py-2 text-xs font-semibold text-[#62586C]">
+            More
+        </button>
+    </nav>
+
+    <div id="moreMenu" class="hidden border-t border-[#EEE3EF] bg-white px-5 py-3">
+        <div class="mx-auto flex max-w-[1100px] flex-wrap gap-5">
+            <a href="./profile.html" class="text-sm font-medium">My profile</a>
+            <a href="./support.html" class="text-sm font-medium">Support</a>
+            <button id="logoutButton" type="button" class="text-sm font-medium text-red-600">Log out</button>
+        </div>
+    </div>
+
+    <div id="mobileMoreMenu" class="hidden border-t border-[#EEE3EF] bg-white px-5 py-3 md:hidden">
+        <div class="flex flex-wrap gap-5">
+            <a href="./profile.html" class="text-sm font-medium">My profile</a>
+            <a href="./support.html" class="text-sm font-medium">Support</a>
+            <button id="mobileLogoutButton" type="button" class="text-sm font-medium text-red-600">Log out</button>
+        </div>
+    </div>
+</header>
+
+<main class="mx-auto min-h-[calc(100vh-55px)] max-w-[1100px] px-4 pb-12 pt-4 sm:px-6 sm:pt-5">
+
+    <section class="mx-auto w-full max-w-[610px]">
+
+        <div class="rounded-2xl bg-[#19131F] p-4 text-white sm:p-5">
+
+            <p class="text-xs font-semibold text-white/65">
+                Your balance
+            </p>
+
+            <h1 id="walletBalance" class="mt-1 text-[35px] font-extrabold tracking-tight sm:text-[40px]">
+                ₦0.00
+            </h1>
+
+            <div class="my-4 border-t border-white/15"></div>
+
+            <div class="flex items-center justify-between gap-3">
+
+                <div>
+                    <p class="text-xs font-medium text-white/65">
+                        Referral earnings
+                    </p>
+
+                    <p id="referralBalance" class="mt-1 text-sm font-bold">
+                        ₦0.00
+                    </p>
+                </div>
+
+                <button id="inviteButton" type="button" class="flex items-center gap-2 rounded-xl border border-white/30 px-3.5 py-3 text-xs font-bold transition hover:bg-white/10 sm:text-sm">
+                    Invite friends
+
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path d="m9 18 6-6-6-6"/>
+                    </svg>
+                </button>
+
+            </div>
+
+            <button id="addMoneyButton" type="button" class="mt-4 flex h-[54px] w-full items-center justify-center gap-2 rounded-xl bg-[#7C3AED] text-sm font-bold text-white transition hover:bg-[#6D28D9]">
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+
+                Add money
+
+            </button>
+
+        </div>
+
+        <div class="mb-4 mt-5 flex items-center justify-between">
+            <h2 class="text-xl font-extrabold tracking-tight">
+                Activity
+            </h2>
+
+            <button id="refreshButton" type="button" aria-label="Refresh transactions" class="flex h-9 w-9 items-center justify-center rounded-lg text-[#62586C] transition hover:bg-[#F1E8F5] hover:text-[#7C3AED]">
+
+                <svg id="refreshIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path d="M20 7v5h-5"/>
+                    <path d="M4 17v-5h5"/>
+                    <path d="M5.5 9a7 7 0 0 1 11.8-2L20 12"/>
+                    <path d="M18.5 15a7 7 0 0 1-11.8 2L4 12"/>
+                </svg>
+
+            </button>
+        </div>
+
+        <div id="transactionsContainer" class="overflow-hidden rounded-2xl border border-[#EEE3EF] bg-white">
+
+            <div id="loadingState" class="px-5 py-10 text-center text-sm text-[#82788A]">
+                Loading transactions...
+            </div>
+
+        </div>
+
+        <div id="emptyState" class="hidden rounded-2xl border border-[#EEE3EF] bg-white px-5 py-12 text-center">
+
+            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#F8EFFF] text-[#7C3AED]">
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <rect x="3" y="5" width="18" height="14" rx="2"/>
+                    <path d="M3 10h18"/>
+                </svg>
+
+            </div>
+
+            <h3 class="mt-4 text-base font-bold">
+                No transactions yet
+            </h3>
+
+            <p class="mt-1 text-sm text-[#82788A]">
+                Your wallet activity will appear here.
+            </p>
+
+            <button id="emptyAddMoneyButton" type="button" class="mt-5 rounded-xl bg-[#7C3AED] px-5 py-3 text-sm font-bold text-white">
+                Add money
+            </button>
+
+        </div>
+
+        <p id="endMessage" class="mt-4 text-center text-xs text-[#82788A]">
+            That's everything.
+        </p>
+
+        <p id="errorMessage" class="mt-4 hidden rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600"></p>
+
+    </section>
+
+</main>
+
+<div id="toast" class="fixed bottom-5 left-1/2 z-[100] hidden -translate-x-1/2 rounded-xl bg-[#19131F] px-5 py-3 text-sm font-medium text-white shadow-xl">
+</div>
+
+<script>
+    const walletBalance = document.getElementById("walletBalance");
+    const headerBalance = document.getElementById("headerBalance");
+    const referralBalance = document.getElementById("referralBalance");
+    const transactionsContainer = document.getElementById("transactionsContainer");
+    const emptyState = document.getElementById("emptyState");
+    const loadingState = document.getElementById("loadingState");
+    const endMessage = document.getElementById("endMessage");
+    const errorMessage = document.getElementById("errorMessage");
+    const refreshButton = document.getElementById("refreshButton");
+    const refreshIcon = document.getElementById("refreshIcon");
+
+    let transactions = [];
+
+    function formatNaira(amount) {
+        return new Intl.NumberFormat("en-NG", {
+            style: "currency",
+            currency: "NGN",
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(Number(amount || 0));
+    }
+
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, character => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        }[character]));
+    }
+
+    function formatDate(date) {
+        if (!date) return "Date unavailable";
+
+        const parsedDate = new Date(date);
+
+        if (Number.isNaN(parsedDate.getTime())) {
+            return String(date);
+        }
+
+        return parsedDate.toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric"
+        });
+    }
+
+    function getTransactionIcon(type) {
+        const icons = {
+            deposit: `
+                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <rect x="3" y="5" width="18" height="14" rx="2"/>
+                    <path d="M3 10h18"/>
+                </svg>
+            `,
+
+            refund: `
+                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path d="M9 14 4 9l5-5"/>
+                    <path d="M4 9h10a6 6 0 0 1 0 12h-3"/>
+                </svg>
+            `,
+
+            order: `
+                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <rect x="4" y="3" width="16" height="18" rx="2"/>
+                    <path d="M8 8h8M8 12h8M8 16h5"/>
+                </svg>
+            `,
+
+            referral: `
+                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="9" cy="8" r="4"/>
+                    <path d="M3 21v-2a6 6 0 0 1 6-6h2"/>
+                    <path d="M16 16v6M13 19h6"/>
+                </svg>
+            `
+        };
+
+        return icons[type] || icons.deposit;
+    }
+
+    function getTransactionStyle(type) {
+        if (type === "order") {
+            return {
+                icon: "bg-purple-100 text-purple-700",
+                amount: "text-red-600",
+                sign: "-"
+            };
+        }
+
+        return {
+            icon: "bg-green-100 text-green-700",
+            amount: "text-green-700",
+            sign: "+"
+        };
+    }
+
+    function renderTransactions() {
+        transactionsContainer.innerHTML = "";
+
+        if (!transactions.length) {
+            transactionsContainer.classList.add("hidden");
+            emptyState.classList.remove("hidden");
+            endMessage.classList.add("hidden");
+            return;
+        }
+
+        transactionsContainer.classList.remove("hidden");
+        emptyState.classList.add("hidden");
+        endMessage.classList.remove("hidden");
+
+        transactions.forEach(transaction => {
+            const type = transaction.type || "deposit";
+            const style = getTransactionStyle(type);
+
+            const amount = Number(transaction.amount || 0);
+
+            const title = transaction.title || (
+                type === "refund"
+                    ? `Refund · Order #${transaction.orderId || ""}`
+                    : type === "order"
+                        ? `Order payment · #${transaction.orderId || ""}`
+                        : type === "referral"
+                            ? "Referral earnings"
+                            : "Bank/Card Payment"
+            );
+
+            const description = transaction.description || (
+                type === "refund"
+                    ? "Refunded"
+                    : type === "order"
+                        ? "Order payment"
+                        : type === "referral"
+                            ? "Referral reward"
+                            : "Top-up"
+            );
+
+            const row = document.createElement("article");
+
+            row.className = "border-b border-[#EEE3EF] last:border-b-0";
+
+            row.innerHTML = `
+                <button type="button" class="transaction-toggle flex w-full items-center gap-3 px-4 py-3 text-left sm:px-4">
+
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${style.icon}">
+                        ${getTransactionIcon(type)}
+                    </span>
+
+                    <span class="min-w-0 flex-1">
+
+                        <span class="block truncate text-sm font-bold">
+                            ${escapeHTML(title)}
+                        </span>
+
+                        <span class="mt-1 block truncate text-xs text-[#82788A]">
+                            ${escapeHTML(description)}
+                        </span>
+
+                    </span>
+
+                    <span class="shrink-0 text-right">
+
+                        <span class="block text-sm font-extrabold ${style.amount}">
+                            ${style.sign}${formatNaira(amount).replace("NGN", "₦").replace("₦", "")}
+                        </span>
+
+                        <span class="mt-1 block text-xs text-[#82788A]">
+                            ${escapeHTML(formatDate(transaction.date))}
+                        </span>
+
+                    </span>
+
+                    <svg class="transaction-chevron ml-1 shrink-0 text-[#82788A] transition-transform" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path d="m6 9 6 6 6-6"/>
+                    </svg>
+
+                </button>
+
+                <div class="transaction-details hidden bg-[#FFFCFF] px-4 pb-4 pl-[68px]">
+
+                    <div class="space-y-3 border-t border-[#EEE3EF] pt-3">
+
+                        <div>
+                            <p class="text-xs text-[#82788A]">Transaction ID</p>
+                            <p class="mt-1 break-all text-sm font-medium">
+                                ${escapeHTML(transaction.id || "Not available")}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs text-[#82788A]">Status</p>
+                            <p class="mt-1 text-sm font-semibold text-green-700">
+                                ${escapeHTML(transaction.status || "Successful")}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs text-[#82788A]">Description</p>
+                            <p class="mt-1 text-sm font-medium">
+                                ${escapeHTML(description)}
+                            </p>
+                        </div>
+
+                        ${transaction.orderId ? `
+                            <div>
+                                <p class="text-xs text-[#82788A]">Order reference</p>
+                                <p class="mt-1 text-sm font-medium">
+                                    #${escapeHTML(transaction.orderId)}
+                                </p>
+                            </div>
+                        ` : ""}
+
+                    </div>
+
+                </div>
+            `;
+
+            const toggle = row.querySelector(".transaction-toggle");
+            const details = row.querySelector(".transaction-details");
+            const chevron = row.querySelector(".transaction-chevron");
+
+            toggle.addEventListener("click", () => {
+                details.classList.toggle("hidden");
+                chevron.classList.toggle("rotate-180");
+            });
+
+            transactionsContainer.appendChild(row);
+        });
+    }
+
+    function updateBalances(data) {
+        const balance = Number(data.balance || 0);
+        const referrals = Number(data.referralEarnings || 0);
+
+        walletBalance.textContent = formatNaira(balance);
+        headerBalance.textContent = formatNaira(balance);
+        referralBalance.textContent = formatNaira(referrals);
+
+        localStorage.setItem("walletBalance", String(balance));
+
+        const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+
+        currentUser.balance = balance;
+
+        localStorage.setItem("currentUser", JSON.stringify(currentUser));
+    }
+
+    async function loadWallet() {
+        refreshButton.disabled = true;
+        refreshIcon.classList.add("animate-spin");
+
+        loadingState.classList.remove("hidden");
+        errorMessage.classList.add("hidden");
+
+        try {
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                window.location.href = "./login.html";
+                return;
+            }
+
+            const response = await fetch("/wallet", {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Unable to load wallet information.");
+            }
+
+            const data = await response.json();
+
+            updateBalances(data);
+
+            transactions = Array.isArray(data.transactions)
+                ? data.transactions
+                : [];
+
+            renderTransactions();
+
+        } catch (error) {
+            transactions = [];
+
+            renderTransactions();
+
+            errorMessage.textContent = error.message || "Unable to load wallet.";
+
+            errorMessage.classList.remove("hidden");
+
+        } finally {
+            loadingState.classList.add("hidden");
+
+            refreshButton.disabled = false;
+            refreshIcon.classList.remove("animate-spin");
+        }
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById("toast");
+
+        toast.textContent = message;
+        toast.classList.remove("hidden");
+
+        setTimeout(() => {
+            toast.classList.add("hidden");
+        }, 3000);
+    }
+
+    document.getElementById("addMoneyButton").addEventListener("click", () => {
+        window.location.href = "./add-money.html";
+    });
+
+    document.getElementById("emptyAddMoneyButton").addEventListener("click", () => {
+        window.location.href = "./add-money.html";
+    });
+
+    document.getElementById("inviteButton").addEventListener("click", () => {
+        window.location.href = "./referrals.html";
+    });
+
+    refreshButton.addEventListener("click", loadWallet);
+
+    document.getElementById("moreButton").addEventListener("click", () => {
+        document.getElementById("moreMenu").classList.toggle("hidden");
+    });
+
+    document.getElementById("mobileMoreButton").addEventListener("click", () => {
+        document.getElementById("mobileMoreMenu").classList.toggle("hidden");
+    });
+
+    function logout() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("currentUser");
+
+        window.location.href = "./login.html";
+    }
+
+    document.getElementById("logoutButton").addEventListener("click", logout);
+
+    document.getElementById("mobileLogoutButton").addEventListener("click", logout);
+
+    loadWallet();
+</script>
+
+</body>
+</html>
