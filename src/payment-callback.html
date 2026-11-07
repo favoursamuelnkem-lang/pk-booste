@@ -4,8 +4,12 @@
  const params=new URLSearchParams(location.search);
  const ref=params.get('reference')||params.get('trxref');
  const token=localStorage.getItem('token');
+ const user=localStorage.getItem('currentUser');
+ // Keep the canonical www domain consistent with the payment initiation page.
+ if(location.hostname==='pk-booster.com'){location.replace('https://www.pk-booster.com/payment-callback.html'+location.search);return;}
  const API=localStorage.getItem('apiBaseUrl')||'https://pk-booste.onrender.com';
- if(!ref||!token){status.textContent='Payment reference or login is missing. Please open your wallet and check your transactions.';return;}
+ if(!ref){status.textContent='Payment reference is missing. Open your wallet and check your transactions.';return;}
+ if(!token){status.textContent='Payment returned, but this browser session is not logged in. Please log in, then open Wallet and refresh transactions. Your payment can still be verified by the backend webhook.';return;}
  try{
   const response=await fetch(API+'/payments/verify/'+encodeURIComponent(ref),{headers:{Authorization:'Bearer '+token}});
   const data=await response.json();
