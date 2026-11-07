@@ -4,7 +4,7 @@
  const params=new URLSearchParams(location.search);
  const ref=params.get('reference')||params.get('trxref');
  const token=localStorage.getItem('token');
- const API=localStorage.getItem('apiBaseUrl')||'http://localhost:5000';
+ const API=localStorage.getItem('apiBaseUrl')||'https://pk-booste.onrender.com';
  if(!ref||!token){status.textContent='Payment reference or login is missing. Please open your wallet and check your transactions.';return;}
  try{
   const response=await fetch(API+'/payments/verify/'+encodeURIComponent(ref),{headers:{Authorization:'Bearer '+token}});

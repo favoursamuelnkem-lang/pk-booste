@@ -17,7 +17,7 @@
 <section class="panel p-4 md:p-5 lg:col-span-2"><h2 class="text-xl font-bold mb-4">Recent transactions</h2><div id="transactions" class="overflow-x-auto"></div></section>
 </div></main>
 <script>
-const API="http://localhost:5000",token=localStorage.getItem("token");let users=[];
+const API="https://pk-booste.onrender.com",token=localStorage.getItem("token");let users=[];
 const headers={"Content-Type":"application/json","Authorization":`Bearer ${token}`};
 async function api(path,options={}){const r=await fetch(API+path,{...options,headers:{...headers,...options.headers}});let d={};try{d=await r.json()}catch{}if(!r.ok)throw Error(d.message||"Request failed");return d}
 function table(rows,cols){return `<table class="min-w-full text-sm"><thead><tr>${cols.map(c=>`<th class="text-left p-2 bg-purple-50">${c}</th>`).join("")}</tr></thead><tbody>${rows.map(row=>`<tr class="border-t">${row.map(x=>`<td class="p-2 align-top">${x}</td>`).join("")}</tr>`).join("")}</tbody></table>`}

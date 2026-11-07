@@ -472,7 +472,7 @@
                 return;
             }
 
-            const API = localStorage.getItem("apiBaseUrl") || "http://localhost:5000";
+            const API = localStorage.getItem("apiBaseUrl") || "https://pk-booste.onrender.com";
             const response = await fetch(API + "/wallet", {
                 method: "GET",
                 headers: {

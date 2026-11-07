@@ -7,7 +7,7 @@
 <div id="details" class="mt-5 hidden rounded-xl bg-purple-50 p-4 text-sm"></div>
 <form id="orderForm" class="mt-5 space-y-4"><div><label class="mb-2 block text-sm font-bold" for="link">Target link</label><input id="link" class="field" type="url" placeholder="https://..." required></div><div><label class="mb-2 block text-sm font-bold" for="quantity">Quantity</label><input id="quantity" class="field" type="number" min="1" step="1" placeholder="Enter quantity" required></div><div id="optional"></div><p id="message" class="hidden text-sm"></p><div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between"><a href="./order.html" class="text-center text-sm font-semibold text-[#746A7D]">Back</a><button id="submit" class="btn" type="submit">Place order</button></div></form></section></main>
 <script>
-const API=localStorage.getItem("apiBaseUrl")||"http://localhost:5000",token=localStorage.getItem("token");
+const API=localStorage.getItem("apiBaseUrl")||"https://pk-booste.onrender.com",token=localStorage.getItem("token");
 const platform=document.getElementById("platform"),serviceSelect=document.getElementById("service"),details=document.getElementById("details"),message=document.getElementById("message"),submit=document.getElementById("submit");
 let services=[];
 function norm(s){return String(s||"").toLowerCase()}
