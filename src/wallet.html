@@ -292,7 +292,7 @@
     }
 
     function getTransactionStyle(type) {
-        if (type === "order") {
+        if (type === "order" || type === "admin_debit") {
             return {
                 icon: "bg-purple-100 text-purple-700",
                 amount: "text-red-600",
@@ -325,7 +325,7 @@
             const type = transaction.type || "deposit";
             const style = getTransactionStyle(type);
 
-            const amount = Number(transaction.amount || 0);
+            const amount = Math.abs(Number(transaction.amount || 0));
 
             const title = transaction.title || (
                 type === "refund"
@@ -334,7 +334,7 @@
                         ? `Order payment · #${transaction.orderId || ""}`
                         : type === "referral"
                             ? "Referral earnings"
-                            : "Bank/Card Payment"
+                            : type === "admin_credit" ? "Admin Deposit" : type === "admin_debit" ? "Admin Deduction" : "Deposit"
             );
 
             const description = transaction.description || (
@@ -344,7 +344,7 @@
                         ? "Order payment"
                         : type === "referral"
                             ? "Referral reward"
-                            : "Top-up"
+                            : type === "admin_credit" ? "Added by admin" : type === "admin_debit" ? "Deducted by admin" : "Wallet deposit"
             );
 
             const row = document.createElement("article");
@@ -377,7 +377,7 @@
                         </span>
 
                         <span class="mt-1 block text-xs text-[#82788A]">
-                            ${escapeHTML(formatDate(transaction.date))}
+                            ${escapeHTML(formatDate(transaction.createdAt || transaction.date))}
                         </span>
 
                     </span>
