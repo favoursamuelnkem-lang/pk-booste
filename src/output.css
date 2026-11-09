@@ -63,6 +63,7 @@
     --radius-xl: 0.75rem;
     --radius-2xl: 1rem;
     --radius-3xl: 1.5rem;
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
     --animate-spin: spin 1s linear infinite;
     --default-transition-duration: 150ms;
     --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -231,6 +232,9 @@
   .sticky {
     position: sticky;
   }
+  .inset-y-0 {
+    inset-block: 0px;
+  }
   .top-0 {
     top: 0px;
   }
@@ -266,6 +270,24 @@
   }
   .z-\[100\] {
     z-index: 100;
+  }
+  .container {
+    width: 100%;
+    @media (width >= 40rem) {
+      max-width: 40rem;
+    }
+    @media (width >= 48rem) {
+      max-width: 48rem;
+    }
+    @media (width >= 64rem) {
+      max-width: 64rem;
+    }
+    @media (width >= 80rem) {
+      max-width: 80rem;
+    }
+    @media (width >= 96rem) {
+      max-width: 96rem;
+    }
   }
   .mx-auto {
     margin-inline: auto;
@@ -422,6 +444,9 @@
   }
   .w-48 {
     width: calc(var(--spacing) * 48);
+  }
+  .w-72 {
+    width: calc(var(--spacing) * 72);
   }
   .w-full {
     width: 100%;
@@ -623,6 +648,10 @@
     border-top-style: var(--tw-border-style);
     border-top-width: 1px;
   }
+  .border-r {
+    border-right-style: var(--tw-border-style);
+    border-right-width: 1px;
+  }
   .border-b {
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 1px;
@@ -659,6 +688,9 @@
   }
   .border-\[\#F3EDF5\] {
     border-color: #F3EDF5;
+  }
+  .border-purple-100 {
+    border-color: var(--color-purple-100);
   }
   .border-white\/15 {
     border-color: color-mix(in srgb, #fff 15%, transparent);
@@ -698,6 +730,9 @@
   }
   .bg-\[\#F8EFFF\] {
     background-color: #F8EFFF;
+  }
+  .bg-\[\#FAF7FC\] {
+    background-color: #FAF7FC;
   }
   .bg-\[\#FCEEFF\] {
     background-color: #FCEEFF;
@@ -1106,6 +1141,10 @@
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
+  .ease-in {
+    --tw-ease: var(--ease-in);
+    transition-timing-function: var(--ease-in);
+  }
   .outline-none {
     --tw-outline-style: none;
     outline-style: none;
@@ -1132,6 +1171,9 @@
     }
     .hover\:bg-\[\#FAF5FB\]:hover {
       background-color: #FAF5FB;
+    }
+    .hover\:bg-purple-50:hover {
+      background-color: var(--color-purple-50);
     }
     .hover\:bg-red-50:hover {
       background-color: var(--color-red-50);
@@ -1446,6 +1488,10 @@
   inherits: false;
   initial-value: solid;
 }
+@property --tw-ease {
+  syntax: "*";
+  inherits: false;
+}
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -1482,6 +1528,7 @@
       --tw-ring-offset-color: #fff;
       --tw-ring-offset-shadow: 0 0 #0000;
       --tw-outline-style: solid;
+      --tw-ease: initial;
     }
   }
 }

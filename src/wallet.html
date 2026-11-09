@@ -6,7 +6,7 @@
     <title>Wallet | PK-BOOSTER</title>
     <link href="./output.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-</head>
+    <link rel="stylesheet" href="./toast.css">\n</head>
 
 <body class="min-h-screen bg-[#FCF9FC] font-['Inter'] text-[#19131F]">
 
@@ -559,44 +559,6 @@
     loadWallet();
 </script>
 
-<style id="pk-toast-styles">
-#pk-toast-container{position:fixed;top:18px;right:18px;z-index:99999;display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100vw - 32px));pointer-events:none}
-.pk-toast{display:flex;align-items:flex-start;gap:11px;padding:13px 15px;border-radius:14px;background:#fff;border:1px solid #e9e2ee;box-shadow:0 12px 35px rgba(25,19,31,.16);font:500 14px/1.45 Inter,system-ui,sans-serif;color:#19131f;pointer-events:auto;animation:pkToastIn .22s ease-out}
-.pk-toast-icon{display:grid;place-items:center;flex:0 0 24px;height:24px;border-radius:50%;font-weight:800}
-.pk-toast-success{border-left:4px solid #16a34a}.pk-toast-success .pk-toast-icon{background:#dcfce7;color:#15803d}
-.pk-toast-error{border-left:4px solid #dc2626}.pk-toast-error .pk-toast-icon{background:#fee2e2;color:#b91c1c}
-.pk-toast-info{border-left:4px solid #2563eb}.pk-toast-info .pk-toast-icon{background:#dbeafe;color:#1d4ed8}
-.pk-toast-warning{border-left:4px solid #f97316}.pk-toast-warning .pk-toast-icon{background:#ffedd5;color:#c2410c}
-.pk-toast-message{flex:1;overflow-wrap:anywhere}.pk-toast-close{border:0;background:transparent;color:#887f91;font-size:18px;line-height:1;cursor:pointer;padding:0 0 0 4px}
-@keyframes pkToastIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pkToastOut{to{opacity:0;transform:translateX(12px)}}
-@media(max-width:480px){#pk-toast-container{top:10px;right:10px;width:calc(100vw - 20px)}}
-</style>
-<script id="pk-toast-script">
-(function(){
-  if(window.showToast)return;
-  const symbols={success:"✓",error:"×",info:"i",warning:"!"};
-  function toast(message,type="info",duration=4200){
-    type=["success","error","info","warning"].includes(type)?type:"info";
-    let container=document.getElementById("pk-toast-container");
-    if(!container){container=document.createElement("div");container.id="pk-toast-container";container.setAttribute("aria-live","polite");container.setAttribute("aria-atomic","false");document.body.appendChild(container);}
-    const item=document.createElement("div");item.className="pk-toast pk-toast-"+type;item.setAttribute("role",type==="error"?"alert":"status");
-    const icon=document.createElement("span");icon.className="pk-toast-icon";icon.textContent=symbols[type];
-    const text=document.createElement("span");text.className="pk-toast-message";text.textContent=String(message??"");
-    const close=document.createElement("button");close.className="pk-toast-close";close.type="button";close.setAttribute("aria-label","Dismiss notification");close.textContent="×";
-    item.append(icon,text,close);container.appendChild(item);
-    let timer=setTimeout(remove,duration);function remove(){clearTimeout(timer);item.style.animation="pkToastOut .18s ease-in forwards";setTimeout(()=>item.remove(),180);}
-    close.addEventListener("click",remove);
-    return item;
-  }
-  window.showToast=toast;
-  window.toastSuccess=(m,d)=>toast(m,"success",d);
-  window.toastError=(m,d)=>toast(m,"error",d);
-  window.toastInfo=(m,d)=>toast(m,"info",d);
-  window.toastWarning=(m,d)=>toast(m,"warning",d);
-  // Convert existing alert() calls to a non-blocking error toast.
-  window.alert=function(message){toast(message,"error");};
-})();
-</script>
-</body>
+
+    <script src="./toast.js"></script>\n</body>
 </html>

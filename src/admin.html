@@ -4,7 +4,7 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PK-BOOSTER Admin</title><link rel="stylesheet" href="./output.css">
 <style>body{font-family:Inter,Arial,sans-serif;background:#fcf9fc;color:#20152b}.brand{background:#7c3aed}.panel{background:white;border:1px solid #eee7f5;border-radius:16px}.btn{background:#7c3aed;color:white;border-radius:10px;padding:10px 14px}.field{border:1px solid #ddd3e8;border-radius:9px;padding:10px;width:100%}</style>
-</head>
+    <link rel="stylesheet" href="./toast.css">\n</head>
 <body>
 <header class="brand text-white px-5 py-4 flex flex-wrap items-center justify-between gap-3"><div class="flex items-center gap-3"><button id="menuToggle" aria-label="Open admin menu" class="rounded-lg bg-white/20 px-3 py-2 text-xl">☰</button><div class="font-bold text-xl">PK-BOOSTER <span class="text-sm font-normal">ADMIN</span></div></div><button id="logout" class="rounded-lg bg-white/20 px-4 py-2">Log out</button></header>
 <aside id="adminMenu" class="hidden fixed z-50 inset-y-0 left-0 w-72 bg-white shadow-xl border-r border-purple-100 p-5"><div class="flex justify-between items-center mb-5"><strong class="text-purple-700">Admin navigation</strong><button id="menuClose" class="text-xl">×</button></div><nav class="space-y-2"><a class="block rounded-lg p-3 hover:bg-purple-50" href="#dashboard">Dashboard</a><a class="block rounded-lg p-3 hover:bg-purple-50" href="#usersPanel">Users & Wallet</a><a class="block rounded-lg p-3 hover:bg-purple-50" href="#servicesPanel">Services</a><a class="block rounded-lg p-3 hover:bg-purple-50" href="#ordersPanel">Boost Orders</a><a class="block rounded-lg p-3 hover:bg-purple-50" href="#transactionsPanel">Transactions</a></nav></aside><main id="dashboard" class="max-w-7xl mx-auto p-4 md:p-8">
@@ -30,43 +30,5 @@ async function setOrder(id,status){try{await api(`/admin/orders/${id}`,{method:"
 document.getElementById("menuToggle").onclick=()=>document.getElementById("adminMenu").classList.toggle("hidden");document.getElementById("menuClose").onclick=()=>document.getElementById("adminMenu").classList.add("hidden");document.getElementById("adminMenu").querySelectorAll("a").forEach(x=>x.onclick=()=>document.getElementById("adminMenu").classList.add("hidden"));
 document.getElementById("logout").onclick=()=>{localStorage.removeItem("token");localStorage.removeItem("currentUser");location.href="./login.html"};
 if(!token)location.href="./login.html";else loadAll();
-</script><style id="pk-toast-styles">
-#pk-toast-container{position:fixed;top:18px;right:18px;z-index:99999;display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100vw - 32px));pointer-events:none}
-.pk-toast{display:flex;align-items:flex-start;gap:11px;padding:13px 15px;border-radius:14px;background:#fff;border:1px solid #e9e2ee;box-shadow:0 12px 35px rgba(25,19,31,.16);font:500 14px/1.45 Inter,system-ui,sans-serif;color:#19131f;pointer-events:auto;animation:pkToastIn .22s ease-out}
-.pk-toast-icon{display:grid;place-items:center;flex:0 0 24px;height:24px;border-radius:50%;font-weight:800}
-.pk-toast-success{border-left:4px solid #16a34a}.pk-toast-success .pk-toast-icon{background:#dcfce7;color:#15803d}
-.pk-toast-error{border-left:4px solid #dc2626}.pk-toast-error .pk-toast-icon{background:#fee2e2;color:#b91c1c}
-.pk-toast-info{border-left:4px solid #2563eb}.pk-toast-info .pk-toast-icon{background:#dbeafe;color:#1d4ed8}
-.pk-toast-warning{border-left:4px solid #f97316}.pk-toast-warning .pk-toast-icon{background:#ffedd5;color:#c2410c}
-.pk-toast-message{flex:1;overflow-wrap:anywhere}.pk-toast-close{border:0;background:transparent;color:#887f91;font-size:18px;line-height:1;cursor:pointer;padding:0 0 0 4px}
-@keyframes pkToastIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pkToastOut{to{opacity:0;transform:translateX(12px)}}
-@media(max-width:480px){#pk-toast-container{top:10px;right:10px;width:calc(100vw - 20px)}}
-</style>
-<script id="pk-toast-script">
-(function(){
-  if(window.showToast)return;
-  const symbols={success:"✓",error:"×",info:"i",warning:"!"};
-  function toast(message,type="info",duration=4200){
-    type=["success","error","info","warning"].includes(type)?type:"info";
-    let container=document.getElementById("pk-toast-container");
-    if(!container){container=document.createElement("div");container.id="pk-toast-container";container.setAttribute("aria-live","polite");container.setAttribute("aria-atomic","false");document.body.appendChild(container);}
-    const item=document.createElement("div");item.className="pk-toast pk-toast-"+type;item.setAttribute("role",type==="error"?"alert":"status");
-    const icon=document.createElement("span");icon.className="pk-toast-icon";icon.textContent=symbols[type];
-    const text=document.createElement("span");text.className="pk-toast-message";text.textContent=String(message??"");
-    const close=document.createElement("button");close.className="pk-toast-close";close.type="button";close.setAttribute("aria-label","Dismiss notification");close.textContent="×";
-    item.append(icon,text,close);container.appendChild(item);
-    let timer=setTimeout(remove,duration);function remove(){clearTimeout(timer);item.style.animation="pkToastOut .18s ease-in forwards";setTimeout(()=>item.remove(),180);}
-    close.addEventListener("click",remove);
-    return item;
-  }
-  window.showToast=toast;
-  window.toastSuccess=(m,d)=>toast(m,"success",d);
-  window.toastError=(m,d)=>toast(m,"error",d);
-  window.toastInfo=(m,d)=>toast(m,"info",d);
-  window.toastWarning=(m,d)=>toast(m,"warning",d);
-  // Convert existing alert() calls to a non-blocking error toast.
-  window.alert=function(message){toast(message,"error");};
-})();
 </script>
-</body></html>
+    <script src="./toast.js"></script>\n</body></html>
