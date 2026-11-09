@@ -367,6 +367,9 @@
   .inline-flex {
     display: inline-flex;
   }
+  .table {
+    display: table;
+  }
   .h-4 {
     height: calc(var(--spacing) * 4);
   }
@@ -492,9 +495,6 @@
   }
   .min-w-44 {
     min-width: calc(var(--spacing) * 44);
-  }
-  .min-w-52 {
-    min-width: calc(var(--spacing) * 52);
   }
   .min-w-full {
     min-width: 100%;
