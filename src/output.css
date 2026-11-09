@@ -493,6 +493,9 @@
   .min-w-0 {
     min-width: 0px;
   }
+  .min-w-28 {
+    min-width: calc(var(--spacing) * 28);
+  }
   .min-w-44 {
     min-width: calc(var(--spacing) * 44);
   }
@@ -609,6 +612,9 @@
     --tw-space-y-reverse: 0;
     margin-block-start: calc(calc(var(--spacing) * 5) * var(--tw-space-y-reverse));
     margin-block-end: calc(calc(var(--spacing) * 5) * calc(1 - var(--tw-space-y-reverse)));
+  }
+  .self-center {
+    align-self: center;
   }
   .truncate {
     overflow: hidden;
