@@ -453,16 +453,33 @@
             }).format(amount);
         }
 
-        function loadWalletBalance() {
+        async function loadWalletBalance() {
             const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+            const token = localStorage.getItem("token");
+            const API = localStorage.getItem("apiBaseUrl") || "https://pk-booste.onrender.com";
+            const balanceElement = document.getElementById("walletBalance");
 
-            const storedBalance = localStorage.getItem("walletBalance");
+            // Render cached balance immediately, then replace it with the authoritative backend balance.
+            const cachedBalance = currentUser.balance ?? localStorage.getItem("walletBalance");
+            if (cachedBalance !== null && cachedBalance !== undefined && cachedBalance !== "") {
+                balanceElement.textContent = formatNaira(Number(cachedBalance));
+            }
 
-            const balance = storedBalance !== null
-                ? Number(storedBalance)
-                : Number(currentUser.balance || 0);
-
-            document.getElementById("walletBalance").textContent = formatNaira(balance);
+            if (!token) return;
+            try {
+                const response = await fetch(API + "/wallet", {
+                    headers: { Authorization: "Bearer " + token }
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || "Could not refresh wallet balance");
+                const balance = Number(data.balance || 0);
+                balanceElement.textContent = formatNaira(balance);
+                localStorage.setItem("walletBalance", String(balance));
+                localStorage.setItem("currentUser", JSON.stringify({ ...currentUser, balance }));
+            } catch (error) {
+                // Keep the cached balance visible if the API is temporarily unavailable.
+                console.warn("Wallet balance refresh failed:", error);
+            }
         }
 
         platformCards.forEach((card) => {
