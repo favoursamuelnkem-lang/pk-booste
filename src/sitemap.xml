@@ -1,14 +1,11 @@
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"&gt;
-
-    &lt;url&gt;
-        &lt;loc&gt;https://pk-booster.com/&lt;/loc&gt;
-        &lt;priority&gt;1.0&lt;/priority&gt;
-    &lt;/url&gt;
-
-    &lt;url&gt;
-        &lt;loc&gt;https://pk-booster.com/services.html&lt;/loc&gt;
-        &lt;priority&gt;0.8&lt;/priority&gt;
-    &lt;/url&gt;
-
-&lt;/urlset&gt;</code></pre>
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://pk-booster.com/</loc>
+        <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>https://pk-booster.com/services.html</loc>
+        <priority>0.8</priority>
+    </url>
+</urlset>
