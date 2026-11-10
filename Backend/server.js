@@ -3,7 +3,7 @@ const dns=require("dns"), express=require("express"), mongoose=require("mongoose
 const app=express(); app.use(cors()); app.use(express.json());
 const userSchema=new mongoose.Schema({fullName:{type:String,required:true,trim:true},email:{type:String,required:true,unique:true,lowercase:true,trim:true},password:{type:String,required:true},balance:{type:Number,default:0},role:{type:String,enum:["user","admin"],default:"user"}},{timestamps:true});
 const User=mongoose.model("User",userSchema);
-const serviceSchema=new mongoose.Schema({name:{type:String,required:true},platform:{type:String,required:true},description:String,pricePer1000:{type:Number,required:true,min:0},provider:{type:String,default:"manual"},providerServiceId:{type:Number},providerPricePer1000:{type:Number,min:0},min:{type:Number,default:10},max:{type:Number,default:100000},active:{type:Boolean,default:true}},{timestamps:true});
+const serviceSchema=new mongoose.Schema({name:{type:String,required:true},platform:{type:String,required:true},description:String,pricePer1000:{type:Number,required:true,min:0},provider:{type:String,default:"manual"},providerServiceId:{type:Number},providerPricePer1000:{type:Number,min:0},boostType:{type:String},min:{type:Number,default:10},max:{type:Number,default:100000},active:{type:Boolean,default:true}},{timestamps:true});
 const Service=mongoose.model("Service",serviceSchema);
 const orderSchema=new mongoose.Schema({user:{type:mongoose.Schema.Types.ObjectId,ref:"User",required:true},service:{type:mongoose.Schema.Types.ObjectId,ref:"Service",required:false},serviceName:String,platform:String,link:String,quantity:Number,amount:Number,status:{type:String,enum:["Pending","Processing","Completed","Cancelled","Failed","Partial"],default:"Pending"},providerOrderId:String,boostType:String},{timestamps:true});
 const Order=mongoose.model("Order",orderSchema);
@@ -43,16 +43,44 @@ app.get("/wallet",auth,async(req,res)=>{const user=await User.findById(req.userI
 app.get("/provider/owlet/balance",auth,async(req,res)=>{try{const data=await owletRequest({action:"balance"});res.json(data);}catch(e){res.status(502).json({message:e.message||"Unable to retrieve Owlet balance."});}});
 app.get("/provider/owlet/services",auth,async(req,res)=>{try{const data=await owletRequest({action:"services"});res.json({services:Array.isArray(data)?data:(data.services||[])});}catch(e){res.status(502).json({message:e.message||"Unable to retrieve Owlet services."});}});
 
+
+const catalogCache={at:0,services:[]};
+function inferOwletPlatform(item){
+ const text=`${item.platform||""} ${item.category||""} ${item.name||""} ${item.description||""}`.toLowerCase();
+ for(const [key,rx] of [["tiktok",/tik[\s-]?tok/],["instagram",/instagram/],["facebook",/facebook/],["youtube",/youtube/],["telegram",/telegram/],["whatsapp",/whatsapp/]])if(rx.test(text))return key[0].toUpperCase()+key.slice(1);
+ return "";
+}
+function inferOwletBoost(item){
+ const text=`${item.name||""} ${item.description||""} ${item.type||""}`.toLowerCase();
+ if(/follower|follow/.test(text))return "Followers";
+ if(/like/.test(text))return "Likes";
+ if(/view|watch/.test(text))return "Views";
+ if(/comment/.test(text))return "Comments";
+ if(/subscriber/.test(text))return "Subscribers";
+ if(/share/.test(text))return "Shares";
+ return "Other";
+}
+async function syncOwletCatalog(force=false){
+ if(!force&&Date.now()-catalogCache.at<5*60*1000&&catalogCache.services.length)return catalogCache.services;
+ const data=await owletRequest({action:"services"});
+ const raw=Array.isArray(data)?data:(Array.isArray(data.services)?data.services:[]);
+ const normalized=raw.map(x=>{
+  const id=Number(x.service||x.id),platform=inferOwletPlatform(x),boostType=inferOwletBoost(x);
+  return {id,name:String(x.name||`Owlet service ${id}`),platform,boostType,rate:Number(x.rate||x.price||0),min:Number(x.min||1),max:Number(x.max||1000000)};
+ }).filter(x=>Number.isInteger(x.id)&&x.id>0&&x.platform&&x.platform!=="Tiktok");
+ const ops=normalized.map(x=>({updateOne:{filter:{provider:"owlet",providerServiceId:x.id},update:{$set:{name:x.name,platform:x.platform,boostType:x.boostType,provider:"owlet",providerServiceId:x.id,providerPricePer1000:x.rate,min:x.min,max:x.max},$setOnInsert:{pricePer1000:x.rate,active:true,description:"Automatically synced from Owlet"}},upsert:true}}));
+ if(ops.length)await Service.bulkWrite(ops,{ordered:false});
+ catalogCache.at=Date.now();catalogCache.services=normalized;
+ return normalized;
+}
 app.get("/services",async(req,res)=>{try{
-// Preserve the existing TikTok catalog; dynamically sync other Owlet platforms.
-const fixed=[{id:8288,name:"Followers",type:"Followers"},{id:23425,name:"TikTok Followers",type:"Followers"},{id:21632,name:"TikTok Likes",type:"Likes"},{id:23148,name:"TikTok Views",type:"Views"},{id:20884,name:"TikTok Views",type:"Views"}];
-for(const item of fixed){await Service.updateOne({provider:"owlet",providerServiceId:item.id},{$setOnInsert:{name:item.name,platform:"TikTok",description:"Owlet provider service",provider:"owlet",providerServiceId:item.id,providerPricePer1000:0,pricePer1000:0,min:10,max:100000,active:true}},{upsert:true});}
-let catalog=[];try{const data=await owletRequest({action:"services"});catalog=Array.isArray(data)?data:(data.services||[]);}catch(providerErr){/* keep previously synced services available */}
-const platformOf=x=>{const t=String(x.category||x.platform||x.name||"").toLowerCase();for(const [needle,label] of [["facebook","Facebook"],["instagram","Instagram"],["youtube","YouTube"],["telegram","Telegram"],["whatsapp","WhatsApp"],["tiktok","TikTok"]])if(t.includes(needle))return label;return "Other";};
-const ops=[];for(const x of catalog){const id=Number(x.service),platform=platformOf(x);if(!Number.isInteger(id)||id<=0||platform==="TikTok")continue;const rate=Number(x.rate)||0;ops.push({updateOne:{filter:{provider:"owlet",providerServiceId:id},update:{$set:{provider:"owlet",providerServiceId:id,name:String(x.name||`Owlet service ${id}`),platform,description:String(x.description||""),providerPricePer1000:rate,min:Number(x.min)||1,max:Number(x.max)||1000000},$setOnInsert:{pricePer1000:rate,active:true}},upsert:true}});}
-if(ops.length)await Service.bulkWrite(ops,{ordered:false});
-res.json({services:await Service.find({active:true}).sort({platform:1,name:1})});
-}catch(e){res.status(500).json({message:e.message||"Unable to load configured services."});}});
+ const fixed=[{id:8288,name:"Followers",type:"Followers"},{id:23425,name:"TikTok Followers",type:"Followers"},{id:21632,name:"TikTok Likes",type:"Likes"},{id:23148,name:"TikTok Views",type:"Views"},{id:20884,name:"TikTok Views",type:"Views"}];
+ for(const item of fixed){await Service.updateOne({provider:"owlet",providerServiceId:item.id},{$setOnInsert:{name:item.name,platform:"TikTok",boostType:item.type,description:"Existing TikTok Owlet service",provider:"owlet",providerServiceId:item.id,providerPricePer1000:0,pricePer1000:0,min:10,max:100000,active:true}},{upsert:true});}
+ await syncOwletCatalog();
+ const services=await Service.find({active:true,provider:"owlet"}).sort({platform:1,name:1}).lean();
+ res.json({services});
+}catch(e){console.error("Owlet catalog sync failed:",e.message);res.status(502).json({message:e.message||"Unable to load Owlet services."});}});
+
 
 app.post("/orders/owlet",auth,async(req,res)=>{try{const service=Number(req.body.service),quantity=Number(req.body.quantity),link=String(req.body.link||"").trim();if(!Number.isInteger(service)||service<=0||!Number.isInteger(quantity)||quantity<=0||!link)return res.status(400).json({message:"Valid service ID, link, and quantity are required."});const s=await Service.findOne({provider:"owlet",providerServiceId:service,active:true}),u=await User.findById(req.userId);if(!s)return res.status(404).json({message:"This service is not enabled by the admin."});if(quantity<s.min||quantity>s.max)return res.status(400).json({message:`Quantity must be between ${s.min} and ${s.max}.`});const charge=money(s.pricePer1000*quantity/1000);if(u.balance<charge)return res.status(400).json({message:"Insufficient wallet balance.",charge});const result=await owletRequest({action:"add",service,link,quantity});if(!result.order)return res.status(502).json({message:"Owlet did not return an order ID.",provider:result});u.balance=money(u.balance-charge);await u.save();const order=await Order.create({user:u._id,service:s._id,serviceName:s.name,platform:s.platform,boostType:String(req.body.boostType||""),link,quantity,amount:charge,status:"Pending",providerOrderId:String(result.order)});await record(u,"order",-charge,`Owlet order ${result.order}`,`owlet-${result.order}`);res.status(201).json({message:"Order submitted.",order,balance:u.balance});}catch(e){res.status(502).json({message:e.message||"Unable to submit Owlet order."});}});app.get("/orders",auth,async(req,res)=>{try{
  const orders=await Order.find({user:req.userId}).sort({createdAt:-1});
@@ -93,8 +121,20 @@ app.get("/admin/users",auth,admin,async(req,res)=>res.json({users:await User.fin
 app.post("/admin/users/:id/adjust-balance",auth,admin,async(req,res)=>{try{const amount=money(Number(req.body.amount)),type=req.body.action;if(!Number.isFinite(amount)||amount<=0||!["credit","debit"].includes(type))return res.status(400).json({message:"Enter a valid amount and action."});const u=await User.findById(req.params.id);if(!u)return res.status(404).json({message:"User not found."});if(type==="debit"&&u.balance<amount)return res.status(400).json({message:"User has insufficient balance."});u.balance=money(u.balance+(type==="credit"?amount:-amount));await u.save();await record(u,type==="credit"?"admin_credit":"admin_debit",type==="credit"?amount:-amount,`Admin ${type}: ${req.body.note||"Balance adjustment"}`);res.json({message:`User balance ${type}ed successfully.`,user:{id:u._id,email:u.email,balance:u.balance}});}catch(e){res.status(500).json({message:"Unable to adjust balance."});}});
 app.get("/admin/orders",auth,admin,async(req,res)=>res.json({orders:await Order.find().populate("user","fullName email").sort({createdAt:-1})}));
 app.patch("/admin/orders/:id",auth,admin,async(req,res)=>{const allowed=["Pending","Processing","Completed","Partial","Cancelled","Failed"];if(!allowed.includes(req.body.status))return res.status(400).json({message:"Invalid status."});const order=await Order.findByIdAndUpdate(req.params.id,{status:req.body.status},{new:true});if(!order)return res.status(404).json({message:"Order not found."});res.json({message:"Order updated.",order});});
-app.get("/admin/provider/owlet/services",auth,admin,async(req,res)=>{try{const data=await owletRequest({action:"services"});const raw=Array.isArray(data)?data:(data.services||[]);const saved=await Service.find({provider:"owlet"}).lean();const byId=new Map(saved.map(s=>[Number(s.providerServiceId),s]));const services=raw.map(x=>{const id=Number(x.service),local=byId.get(id);return {providerServiceId:id,name:String(x.name||`Owlet service ${id}`),providerPricePer1000:Number(x.rate||0),min:Number(x.min||1),max:Number(x.max||1000000),platform:String(x.category||x.platform||"Social media"),localId:local?String(local._id):null,pricePer1000:local?Number(local.pricePer1000):null,active:local?!!local.active:false};}).filter(x=>Number.isInteger(x.providerServiceId)&&x.providerServiceId>0);res.json({services});}catch(e){res.status(502).json({message:e.message||"Unable to load Owlet services."});}});
-app.post("/admin/provider/owlet/services",auth,admin,async(req,res)=>{try{const id=Number(req.body.providerServiceId),price=Number(req.body.pricePer1000),min=Number(req.body.min||1),max=Number(req.body.max||1000000);if(!Number.isInteger(id)||id<=0||!Number.isFinite(price)||price<0)return res.status(400).json({message:"Enter a valid provider service ID and selling price."});const data=await owletRequest({action:"services"}),raw=Array.isArray(data)?data:(data.services||[]),item=raw.find(x=>Number(x.service)===id);if(!item)return res.status(404).json({message:"Provider service not found."});const service=await Service.findOneAndUpdate({provider:"owlet",providerServiceId:id},{$set:{provider:"owlet",providerServiceId:id,name:String(item.name||`Owlet service ${id}`),platform:String(req.body.platform||item.category||item.platform||"Social media"),description:String(item.description||""),providerPricePer1000:Number(item.rate||0),pricePer1000:price,min:Number(item.min||min),max:Number(item.max||max),active:req.body.active!==false}},{new:true,upsert:true,runValidators:true,setDefaultsOnInsert:true});res.json({message:"Provider service saved.",service});}catch(e){res.status(500).json({message:e.message||"Unable to save provider service."});}});
+app.get("/admin/provider/owlet/services",auth,admin,async(req,res)=>{try{
+ const raw=await syncOwletCatalog(true);
+ const saved=await Service.find({provider:"owlet"}).lean();const byId=new Map(saved.map(s=>[Number(s.providerServiceId),s]));
+ const services=raw.map(x=>{const local=byId.get(x.id);return {providerServiceId:x.id,name:x.name,providerPricePer1000:x.rate,min:x.min,max:x.max,platform:x.platform,boostType:x.boostType,localId:local?String(local._id):null,pricePer1000:local?Number(local.pricePer1000):null,active:local?!!local.active:false};});
+ res.json({services});
+}catch(e){res.status(502).json({message:e.message||"Unable to load Owlet services."});}});
+app.post("/admin/provider/owlet/services",auth,admin,async(req,res)=>{try{
+ const id=Number(req.body.providerServiceId),price=Number(req.body.pricePer1000);
+ if(!Number.isInteger(id)||id<=0||!Number.isFinite(price)||price<0)return res.status(400).json({message:"Enter a valid provider service ID and selling price."});
+ const catalog=await syncOwletCatalog(true),item=catalog.find(x=>x.id===id);
+ if(!item)return res.status(404).json({message:"Provider service not found in the supported platform catalog."});
+ const service=await Service.findOneAndUpdate({provider:"owlet",providerServiceId:id},{$set:{provider:"owlet",providerServiceId:id,name:item.name,platform:item.platform,boostType:item.boostType,description:"Synced from Owlet",providerPricePer1000:item.rate,pricePer1000:price,min:item.min,max:item.max,active:req.body.active!==false}},{new:true,upsert:true,runValidators:true,setDefaultsOnInsert:true});
+ res.json({message:"Provider service saved.",service});
+ }catch(e){res.status(502).json({message:e.message||"Unable to save provider service."});}});
 app.post("/admin/services",auth,admin,async(req,res)=>{try{const {name,platform,pricePer1000,min,max,description}=req.body;if(!name||!platform||Number(pricePer1000)<0)return res.status(400).json({message:"Name, platform, and valid price are required."});const service=await Service.create({name,platform,pricePer1000:Number(pricePer1000),min:Number(min)||10,max:Number(max)||100000,description});res.status(201).json({service});}catch(e){res.status(500).json({message:"Unable to create service."});}});
 app.patch("/admin/services/:id",auth,admin,async(req,res)=>{const service=await Service.findByIdAndUpdate(req.params.id,req.body,{new:true,runValidators:true});if(!service)return res.status(404).json({message:"Service not found."});res.json({service});});
 app.get("/admin/transactions",auth,admin,async(req,res)=>res.json({transactions:await Transaction.find().populate("user","fullName email").sort({createdAt:-1}).limit(300)}));
