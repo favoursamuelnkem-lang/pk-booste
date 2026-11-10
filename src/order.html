@@ -401,7 +401,7 @@
 
             </div>
 
-            <div id="selectionMessage" class="mt-5 hidden rounded-xl border border-[#DDD0E8] bg-white p-4">
+            <div id="selectionMessage" class="mt-5 hidden scroll-mt-24 rounded-xl border border-[#DDD0E8] bg-white p-4">
 
                 <div class="flex items-center justify-between gap-3">
 
@@ -501,6 +501,15 @@
                 selectionMessage.classList.remove("hidden");
 
                 pageMessage.classList.add("hidden");
+
+                // Bring the selected-platform summary and Continue button into view
+                // so the next action is obvious on both mobile and desktop.
+                requestAnimationFrame(() => {
+                    selectionMessage.scrollIntoView({
+                        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+                        block: "center"
+                    });
+                });
             });
         });
 
