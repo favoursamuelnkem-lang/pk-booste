@@ -34,7 +34,25 @@ function refreshSummary(){const s=selected(),q=Number(quantityInput.value)||0;do
 serviceSelect.addEventListener("change",()=>{const s=selected();if(!s){details.classList.add("hidden");refreshSummary();return}details.innerHTML=`<div class="font-bold">${escapeHtml(s.name)}</div><div class="mt-1">Price: ₦${Number(s.pricePer1000||0).toLocaleString()} per 1,000 · Minimum: ${s.min??1} · Maximum: ${s.max??"—"}</div>`;details.classList.remove("hidden");quantityInput.min=s.min||1;quantityInput.max=s.max||"";refreshSummary()});
 platform.addEventListener("change",render);boostType.addEventListener("change",render);quantityInput.addEventListener("input",refreshSummary);linkInput.addEventListener("input",refreshSummary);
 document.getElementById("orderForm").addEventListener("submit",async e=>{e.preventDefault();if(!token){location.href="./login.html";return}const s=selected(),quantity=Number(quantityInput.value),link=linkInput.value.trim();if(!boostType.value){toastWarning("Choose a boost type first.");return}if(!s){toastWarning("Choose a service.");return}if(!/^https?:\/\//i.test(link)){toastError("Enter a valid target link.");return}if(!Number.isInteger(quantity)||quantity<Number(s.min||1)||quantity>Number(s.max||Number.MAX_SAFE_INTEGER)){toastError(`Quantity must be between ${s.min||1} and ${s.max||"the maximum"}.`);return}submit.disabled=true;submit.textContent="Submitting order…";try{const r=await fetch(API+"/orders/owlet",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({service:Number(s.providerServiceId),serviceName:s.name,platform:platform.value,boostType:boostType.value,link,quantity})});const d=await r.json();if(!r.ok)throw Error(d.message||"Order failed");localStorage.setItem("currentUser",JSON.stringify({...JSON.parse(localStorage.getItem("currentUser")||"{}"),balance:d.balance}));toastSuccess("Order submitted successfully.");setTimeout(()=>location.href="./my-orders.html",900)}catch(err){toastError(err.message||"Unable to place order.")}finally{submit.disabled=false;submit.textContent="Place order"}});
-async function load(){if(!token){location.href="./login.html";return}serviceSelect.innerHTML="<option>Loading services…</option>";try{const r=await fetch(API+"/services",{headers:{Authorization:"Bearer "+token}}),d=await r.json();if(!r.ok)throw Error(d.message||"Unable to load Owlet services");services=Array.isArray(d.services)?d.services.filter(x=>x.provider==="owlet"&&x.providerServiceId&&x.active):[];const remembered=localStorage.getItem("selectedPlatform");if(remembered&&[...platform.options].some(o=>o.value===remembered||o.text===remembered))platform.value=remembered;render()}catch(e){serviceSelect.innerHTML='<option value="">Could not load services</option>';toastError(e.message+" Check provider setup and backend.")}}
+let catalogPoll=null;
+async function load(showLoading=true){
+ if(!token){location.href="./login.html";return}
+ if(showLoading)serviceSelect.innerHTML='<option value="">Loading services from PK-BOOSTER… please wait</option>';
+ try{
+  const r=await fetch(API+"/services",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
+  const d=await r.json();if(!r.ok)throw Error(d.message||"Unable to load services");
+  services=Array.isArray(d.services)?d.services.filter(x=>x.provider==="owlet"&&x.providerServiceId&&x.active):[];
+  const remembered=localStorage.getItem("selectedPlatform");
+  if(remembered&&[...platform.options].some(o=>o.value===remembered||o.text===remembered))platform.value=remembered;
+  render();
+  if(d.refreshing&&!catalogPoll){
+   catalogPoll=setTimeout(async()=>{catalogPoll=null;await load(false)},4000);
+  }
+ }catch(e){
+  serviceSelect.innerHTML='<option value="">Could not load services — please try again</option>';
+  toastError(e.message+" Check your connection and backend.");
+ }
+}
 load();
 </script>
     <script src="./toast.js"></script>\n</body></html>

@@ -24,14 +24,18 @@ async function owletRequest(payload){
 }
 
 async function sendWelcomeEmail(user){
- const {SMTP_HOST,SMTP_PORT,SMTP_USER,SMTP_PASS,MAIL_FROM}=process.env;
- if(!SMTP_HOST||!SMTP_USER||!SMTP_PASS||!MAIL_FROM){console.warn("Welcome email skipped: SMTP settings are not configured.");return false;}
+ const apiKey=String(process.env.RESEND_API_KEY||"").trim();
+ const from=String(process.env.RESEND_FROM||"").trim();
+ if(!apiKey||!from){console.warn("Welcome email skipped: set RESEND_API_KEY and RESEND_FROM.");return false;}
+ const safeName=String(user.fullName||"there").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  try{
-  const nodemailer=require("nodemailer");
-  const transporter=nodemailer.createTransport({host:SMTP_HOST,port:Number(SMTP_PORT||587),secure:Number(SMTP_PORT)===465,auth:{user:SMTP_USER,pass:SMTP_PASS}});
-  await transporter.sendMail({from:MAIL_FROM,to:user.email,subject:"Welcome to PK-BOOSTER!",text:`Hi ${user.fullName},\n\nWelcome to PK-BOOSTER! Your account has been created successfully. You can now sign in and place your social media boost orders.\n\nThanks for joining PK-BOOSTER.`,html:`<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:24px;color:#241b2d"><h2>Welcome to PK-BOOSTER, ${String(user.fullName).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}!</h2><p>Your account has been created successfully.</p><p>You can now sign in, fund your wallet, and place social media boost orders.</p><p>Thanks for joining PK-BOOSTER.</p></div>`});
+  await axios.post("https://api.resend.com/emails",{
+   from,to:[user.email],subject:"Welcome to PK-BOOSTER!",
+   html:`<div style="margin:0;padding:32px 16px;background:#f8f5fc;font-family:Arial,sans-serif;color:#241b2d"><div style="max-width:560px;margin:auto;background:#fff;border-radius:18px;padding:32px"><div style="font-size:13px;font-weight:800;letter-spacing:2px;color:#7c3aed">PK-BOOSTER</div><h1 style="font-size:26px">Welcome, ${safeName}!</h1><p>Your account has been created successfully. You can now sign in, fund your wallet, and place social media boost orders.</p><p style="margin-top:28px">Thanks for joining PK-BOOSTER.</p></div></div>`,
+   text:`Hi ${user.fullName}, welcome to PK-BOOSTER! Your account has been created successfully. You can now sign in and place social media boost orders.`
+  },{timeout:10000,headers:{Authorization:`Bearer ${apiKey}`,"Content-Type":"application/json"}});
   return true;
- }catch(error){console.error("Welcome email failed:",error.message);return false;}
+ }catch(error){console.error("Welcome email failed:",error.response?.data||error.message);return false;}
 }
 async function record(user,type,amount,note,reference){return Transaction.create({user:user._id,type,amount,balanceAfter:user.balance,note,reference});}
 app.get("/",(req,res)=>res.json({message:"PK-BOOSTER API is running."}));
@@ -73,14 +77,19 @@ async function syncOwletCatalog(force=false){
  catalogCache.at=Date.now();catalogCache.services=normalized;
  return normalized;
 }
-app.get("/services",async(req,res)=>{try{
- const fixed=[{id:8288,name:"Followers",type:"Followers"},{id:23425,name:"TikTok Followers",type:"Followers"},{id:21632,name:"TikTok Likes",type:"Likes"},{id:23148,name:"TikTok Views",type:"Views"},{id:20884,name:"TikTok Views",type:"Views"}];
- for(const item of fixed){await Service.updateOne({provider:"owlet",providerServiceId:item.id},{$setOnInsert:{name:item.name,platform:"TikTok",boostType:item.type,description:"Existing TikTok Owlet service",provider:"owlet",providerServiceId:item.id,providerPricePer1000:0,pricePer1000:0,min:10,max:100000,active:true}},{upsert:true});}
- await syncOwletCatalog();
- const services=await Service.find({active:true,provider:"owlet"}).sort({platform:1,name:1}).lean();
- res.json({services});
-}catch(e){console.error("Owlet catalog sync failed:",e.message);res.status(502).json({message:e.message||"Unable to load Owlet services."});}});
-
+app.get("/services",async(req,res)=>{
+ try{
+  // Return the locally cached catalog immediately; refresh Owlet in the background.
+  const fixed=[{id:8288,name:"Followers",type:"Followers"},{id:23425,name:"TikTok Followers",type:"Followers"},{id:21632,name:"TikTok Likes",type:"Likes"},{id:23148,name:"TikTok Views",type:"Views"},{id:20884,name:"TikTok Views",type:"Views"}];
+  const fixedOps=fixed.map(x=>({updateOne:{filter:{provider:"owlet",providerServiceId:x.id},update:{$setOnInsert:{name:x.name,platform:"TikTok",boostType:x.type,description:"Existing TikTok Owlet service",provider:"owlet",providerServiceId:x.id,providerPricePer1000:0,pricePer1000:0,min:10,max:100000,active:true}},upsert:true}}));
+  await Service.bulkWrite(fixedOps,{ordered:false});
+  const services=await Service.find({active:true,provider:"owlet"}).sort({platform:1,name:1}).lean();
+  res.json({services,refreshing:!catalogCache.at||Date.now()-catalogCache.at>5*60*1000});
+  if(!catalogCache.at||Date.now()-catalogCache.at>5*60*1000){
+   syncOwletCatalog(true).catch(e=>console.error("Background Owlet catalog refresh failed:",e.message));
+  }
+ }catch(e){console.error("Service list failed:",e.message);res.status(500).json({message:"Unable to load saved services."});}
+});
 
 app.post("/orders/owlet",auth,async(req,res)=>{try{const service=Number(req.body.service),quantity=Number(req.body.quantity),link=String(req.body.link||"").trim();if(!Number.isInteger(service)||service<=0||!Number.isInteger(quantity)||quantity<=0||!link)return res.status(400).json({message:"Valid service ID, link, and quantity are required."});const s=await Service.findOne({provider:"owlet",providerServiceId:service,active:true}),u=await User.findById(req.userId);if(!s)return res.status(404).json({message:"This service is not enabled by the admin."});if(quantity<s.min||quantity>s.max)return res.status(400).json({message:`Quantity must be between ${s.min} and ${s.max}.`});const charge=money(s.pricePer1000*quantity/1000);if(u.balance<charge)return res.status(400).json({message:"Insufficient wallet balance.",charge});const result=await owletRequest({action:"add",service,link,quantity});if(!result.order)return res.status(502).json({message:"Owlet did not return an order ID.",provider:result});u.balance=money(u.balance-charge);await u.save();const order=await Order.create({user:u._id,service:s._id,serviceName:s.name,platform:s.platform,boostType:String(req.body.boostType||""),link,quantity,amount:charge,status:"Pending",providerOrderId:String(result.order)});await record(u,"order",-charge,`Owlet order ${result.order}`,`owlet-${result.order}`);res.status(201).json({message:"Order submitted.",order,balance:u.balance});}catch(e){res.status(502).json({message:e.message||"Unable to submit Owlet order."});}});app.get("/orders",auth,async(req,res)=>{try{
  const orders=await Order.find({user:req.userId}).sort({createdAt:-1});

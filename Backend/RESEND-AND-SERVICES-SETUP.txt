@@ -1,0 +1,21 @@
+PK-BOOSTER: RESEND WELCOME EMAIL + FASTER SERVICE LOADING
+
+1) Resend welcome email
+In Render > your backend service > Environment, set:
+- RESEND_API_KEY: your Resend API key
+- RESEND_FROM: a sender address on a domain verified in Resend, e.g. PK-BOOSTER <welcome@yourdomain.com>
+
+New registrations trigger the welcome email in the background. Email failure does not block registration.
+Do not put the API key in frontend files or commit it to GitHub.
+
+2) Faster service loading
+The /services endpoint now returns services already saved in MongoDB immediately, then refreshes the Owlet catalog in the background when its cache is stale (5 minutes).
+The New Order service selector displays "Loading services from PK-BOOSTER… please wait" and checks again after four seconds when a refresh is in progress.
+The Owlet API still needs a valid OWLET_API_KEY on the backend. First-time catalog population depends on Owlet responding successfully.
+
+3) TikTok
+The existing five TikTok service IDs are initialized if absent:
+8288, 23425, 21632, 23148, 20884.
+The automatic catalog sync continues to exclude TikTok so it does not overwrite that existing configuration.
+
+After changing files, deploy the Backend to Render and the frontend to its existing host. Add the Resend environment variables in Render before testing registration.
