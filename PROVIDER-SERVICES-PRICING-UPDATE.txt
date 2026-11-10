@@ -1,0 +1,23 @@
+PK-BOOSTER PROVIDER SERVICES & CUSTOM PRICING UPDATE
+
+Changes in this ZIP:
+1. Admin > Owlet Provider Services now reads the saved provider-service records from MongoDB immediately instead of waiting for a fresh Owlet API request before responding.
+2. When the catalogue is stale or not yet synchronized, the backend refreshes Owlet in the background. The admin page shows "Loading services..." and checks again periodically.
+3. Concurrent catalogue refresh requests are coalesced so multiple admin requests do not start duplicate full Owlet synchronizations.
+4. The provider-service save endpoint no longer forces a full Owlet catalogue synchronization just to save one price.
+5. The provider price and admin selling price are stored separately. The customer selling price remains in Service.pricePer1000 and the Owlet provider rate remains in providerPricePer1000.
+6. The existing order endpoint calculates the customer charge from the admin selling price (pricePer1000).
+7. Existing TikTok fixed service records and their IDs are preserved; the background non-TikTok catalogue sync continues to exclude TikTok.
+
+Admin pricing:
+- Load Owlet services in Admin > Owlet Provider Services.
+- Enter a value under "Your selling price / 1k".
+- Click Add or Save. The saved price is used for customer orders.
+- Use Enable/Disable to control whether the service is available to customers.
+
+Deployment:
+- Replace the project source with this ZIP and deploy the updated Backend to Render and frontend to Vercel.
+- Keep your existing Render environment variables (MONGODB_URI, JWT_SECRET, OWLET_API_KEY, RESEND_API_KEY, RESEND_FROM, etc.).
+- This ZIP intentionally excludes .env files, .git history, and node_modules. Do not delete your live environment variables.
+- Syntax checks passed for Backend/server.js and the admin page scripts.
+- Live Owlet/MongoDB behavior must be confirmed after deployment using your own environment.
