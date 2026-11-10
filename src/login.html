@@ -247,11 +247,8 @@
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(
-                    data.message ||
-                    data.error ||
-                    "Login failed. Please check your details."
-                );
+                if (response.status >= 500) throw new Error("Error");
+                throw new Error(data.message || data.error || "Login failed. Please check your details.");
             }
 
             if (!data.token || !data.user) {
@@ -280,16 +277,16 @@ setTimeout(() => {
         } catch (error) {
             console.error("Login error:", error);
 
-            if (error instanceof TypeError) {
-                showMessage(
-                    "Cannot connect to the backend. Make sure your server is running.",
-                    "error"
-                );
+            // Keep network and server failures simple and show them as a toast.
+            // Invalid credentials and validation messages remain descriptive.
+            const isConnectionOrServerError = error instanceof TypeError || error.message === "Error" || error.message === "Unable to log in.";
+            if (isConnectionOrServerError) {
+                loginMessage.textContent = "";
+                loginMessage.className = "hidden";
+                if (window.toastError) window.toastError("Error");
+                else if (window.showToast) window.showToast("Error", "error");
             } else {
-                showMessage(
-                    error.message || "Login failed. Please try again.",
-                    "error"
-                );
+                showMessage(error.message || "Error", "error");
             }
 
             loginButton.disabled = false;

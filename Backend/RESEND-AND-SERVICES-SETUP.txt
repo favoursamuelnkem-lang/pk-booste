@@ -19,3 +19,16 @@ The existing five TikTok service IDs are initialized if absent:
 The automatic catalog sync continues to exclude TikTok so it does not overwrite that existing configuration.
 
 After changing files, deploy the Backend to Render and the frontend to its existing host. Add the Resend environment variables in Render before testing registration.
+
+EMAIL NOTIFICATIONS ENABLED
+The same Resend configuration is used for these customer notifications:
+- Welcome email after successful registration.
+- Login alert after successful login (including admin login).
+- Order received email after an order is successfully submitted.
+- Order completed email when an order changes to Completed, whether detected by Owlet status sync or changed by an admin.
+
+Required Render environment variables:
+RESEND_API_KEY=re_your_api_key
+RESEND_FROM=PK-BOOSTER <welcome@your-verified-domain.com>
+
+The sender domain must be verified in Resend. Email sending is asynchronous and notification failures are logged without undoing registration, login, or an order. Completion emails are sent only when the order transitions into Completed, to avoid repeat emails on subsequent status checks.
