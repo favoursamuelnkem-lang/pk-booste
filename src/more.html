@@ -3,18 +3,32 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>More | PK-BOOSTER</title><link rel="stylesheet" href="./output.css"><link rel="stylesheet" href="./toast.css"><link rel="icon" type="image/png" href="./assets/favicon.png">
-<style>body{background:#f8f6fa;color:#211625;font-family:Inter,Arial,sans-serif}.card{background:#fff;border:1px solid #eee5f2;border-radius:20px}.item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0;border-bottom:1px solid #f1ebf4}.item:last-child{border:0}.item:focus,.item:hover{color:#7c3aed}</style>
+<style>
+:root{--pk-purple:#7C3AED;--pk-purple-dark:#6D28D9;--pk-lilac:#F3E8FF;--pk-border:#E9DFF5}
+*{box-sizing:border-box}body{background:#FCF9FF;color:#211625;font-family:Inter,Arial,sans-serif}
+.pk-brand{color:var(--pk-purple)!important}.pk-brand-bg{background:var(--pk-purple)!important;color:#fff!important}
+.card{background:#fff;border:1px solid var(--pk-border);border-radius:20px;box-shadow:0 8px 24px rgba(67,35,96,.045)}
+.item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 0;border-bottom:1px solid #F1EBF7;color:#261B30;text-decoration:none;transition:background .18s,color .18s}
+.item:last-child{border:0}.item:hover,.item:focus{color:var(--pk-purple);background:#FCFAFF;outline:none}
+.item>span:last-child{color:var(--pk-purple);font-size:24px;font-weight:700}
+#profileInitial{background:var(--pk-lilac)!important;color:var(--pk-purple)!important;border:1px solid #E9D5FF}
+#profileBalance{color:var(--pk-purple)!important}
+#logoutBtn{background:#F3E8FF!important;color:var(--pk-purple)!important;border:1px solid #E9D5FF;transition:.2s}
+#logoutBtn:hover{background:#E9D5FF!important;color:var(--pk-purple-dark)!important}
+.pk-nav a.active{color:var(--pk-purple)!important;font-weight:800}
+@media(max-width:480px){main{padding-top:22px!important}.card{border-radius:18px}.item{padding:15px 0}}
+</style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="min-h-screen pb-24">
-<header class="bg-white border-b border-gray-100 sticky top-0 z-30"><div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between"><a href="account.html" class="font-extrabold text-xl text-purple-600">PK-BOOSTER</a><a href="wallet.html" class="text-sm font-bold text-purple-600">Wallet</a></div></header>
+<header class="bg-white border-b border-gray-100 sticky top-0 z-30"><div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between"><a href="account.html" class="font-extrabold text-xl pk-brand">PK-BOOSTER</a><a href="wallet.html" class="text-sm font-bold pk-brand">Wallet</a></div></header>
 <main class="max-w-3xl mx-auto px-4 py-7">
 <h1 class="text-2xl font-extrabold">More</h1><p class="text-sm text-gray-500 mt-1">Your profile, account and support settings.</p>
 <section class="card p-5 mt-5"><div class="flex items-center gap-4"><div id="profileInitial" class="w-14 h-14 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xl font-extrabold">P</div><div class="min-w-0"><h2 id="profileName" class="font-bold truncate">Your account</h2><p id="profileEmail" class="text-sm text-gray-500 truncate">Loading profile...</p></div></div><div class="mt-5 pt-4 border-t border-gray-100 flex justify-between items-center"><span class="text-sm text-gray-500">Wallet balance</span><strong id="profileBalance" class="text-lg text-purple-700">₦0.00</strong></div></section>
 <section class="card px-5 mt-5"><a class="item" href="account.html"><span><b>My profile</b><small class="block text-gray-500 mt-1">Update account details and change password</small></span><span>›</span></a><a class="item" href="wallet.html"><span><b>Wallet</b><small class="block text-gray-500 mt-1">Fund your wallet and view transactions</small></span><span>›</span></a><a class="item" href="my-orders.html"><span><b>My orders</b><small class="block text-gray-500 mt-1">Track your boost orders</small></span><span>›</span></a><a class="item" href="support.html"><span><b>Help & support</b><small class="block text-gray-500 mt-1">Contact support if you need assistance</small></span><span>›</span></a></section>
-<button id="logoutBtn" class="w-full mt-5 py-3.5 rounded-xl bg-red-50 text-red-600 font-bold">Log out</button>
+<button id="logoutBtn" class="w-full mt-5 py-3.5 rounded-xl font-bold">Log out</button>
 </main>
-<nav class="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-100 px-2 py-2"><div class="grid grid-cols-5 max-w-lg mx-auto text-center text-[10px]"><a href="account.html" class="py-1 text-gray-400"><span class="block text-lg">⌂</span>Home</a><a href="services.html" class="py-1 text-gray-400"><span class="block text-lg">✦</span>Services</a><a href="order.html" class="py-1 text-purple-600 font-bold"><span class="block text-lg">🛒</span>Boost</a><a href="my-orders.html" class="py-1 text-gray-400"><span class="block text-lg">▤</span>Orders</a><a href="more.html" class="py-1 text-purple-600 font-bold"><span class="block text-lg">👤</span>More</a></div></nav>
+<nav class="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-100 px-2 py-2"><div class="pk-nav grid grid-cols-5 max-w-lg mx-auto text-center text-[10px]"><a href="account.html" class="py-1 text-gray-400"><span class="block text-lg">⌂</span>Home</a><a href="services.html" class="py-1 text-gray-400"><span class="block text-lg">✦</span>Services</a><a href="order.html" class="py-1 text-purple-600 font-bold"><span class="block text-lg">🛒</span>Boost</a><a href="my-orders.html" class="py-1 text-gray-400"><span class="block text-lg">▤</span>Orders</a><a href="more.html" class="active py-1 text-purple-600 font-bold"><span class="block text-lg">👤</span>More</a></div></nav>
 <script>
 (async()=>{const token=localStorage.getItem('token')||sessionStorage.getItem('token');if(!token){location.href='login.html';return;}try{const r=await fetch('https://pk-booste.onrender.com/api/auth/me',{headers:{Authorization:`Bearer ${token}`}});const d=await r.json();if(!r.ok||!d.success)throw Error(d.message||'Unable to load profile');const u=d.user||{};const name=u.fullName||u.username||u.email?.split('@')[0]||'User';document.getElementById('profileName').textContent=name;document.getElementById('profileEmail').textContent=u.email||'';document.getElementById('profileInitial').textContent=name.charAt(0).toUpperCase();document.getElementById('profileBalance').textContent='₦'+Number(u.balance||0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});}catch(e){document.getElementById('profileEmail').textContent='Unable to load profile';}}
 )();document.getElementById('logoutBtn').addEventListener('click',()=>{localStorage.removeItem('token');sessionStorage.removeItem('token');localStorage.removeItem('currentUser');location.href='login.html'});

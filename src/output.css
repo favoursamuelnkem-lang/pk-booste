@@ -869,14 +869,14 @@
   .border-\[\#E4D8E7\] {
     border-color: #E4D8E7;
   }
-  .border-\[\#E8DCE8\] {
-    border-color: #E8DCE8;
-  }
   .border-\[\#E8DCEC\] {
     border-color: #E8DCEC;
   }
   .border-\[\#E9DFF0\] {
     border-color: #E9DFF0;
+  }
+  .border-\[\#E9DFF5\] {
+    border-color: #E9DFF5;
   }
   .border-\[\#EEE3EF\] {
     border-color: #EEE3EF;
@@ -1564,9 +1564,6 @@
     }
     .hover\:text-\[\#083b4a\]:hover {
       color: #083b4a;
-    }
-    .hover\:text-\[\#A900A9\]:hover {
-      color: #A900A9;
     }
   }
   .focus\:border-\[\#7C3AED\]:focus {
