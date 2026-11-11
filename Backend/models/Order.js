@@ -74,6 +74,10 @@ const orderSchema = new mongoose.Schema(
       default: false
     },
 
+    walletDeducted: { type: Boolean, default: false },
+
+    providerSubmissionError: { type: String, default: "" },
+
     emailNotifications: {
       type: [String],
       default: []

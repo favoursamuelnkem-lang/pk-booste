@@ -1298,77 +1298,37 @@ app.get("/api/services",async(req,res)=>{
 });
 
 app.post(
-  ["/api/orders","/orders/owlet"],
+  ["/api/orders", "/orders/owlet"],
   protect,
   async (req, res) => {
+    let order = null;
+    let walletDebited = false;
+    let providerRequestStarted = false;
 
-    let walletReserved=false, reservedAmount=0, reservedUserId=null;
     try {
-
-     const {
-  serviceId: bodyServiceId,
-  service,
-  platform,
-  link,
-  quantity
-} = req.body;
+      const { serviceId: bodyServiceId, service, platform, link, quantity } = req.body || {};
       const serviceId = bodyServiceId || service;
-
-      if (!serviceId || !link || !quantity) {
-
-        return res.status(400).json({
-          success: false,
-          message: "Service, link and quantity are required."
-        });
-
-      }
-
-
       const selectedQuantity = Number(quantity);
 
-
-      if (
-        !Number.isInteger(selectedQuantity) ||
-        selectedQuantity < 1
-      ) {
-
+      if (!serviceId || !link || !Number.isInteger(selectedQuantity) || selectedQuantity < 1) {
         return res.status(400).json({
           success: false,
-          message: "Invalid quantity."
+          message: "Service, link and a valid quantity are required."
         });
-
       }
 
-      const user =
-        await User.findById(req.userId);
-
-
+      const user = await User.findById(req.userId);
       if (!user) {
-
-        return res.status(404).json({
-          success: false,
-          message: "User not found."
-        });
-
+        return res.status(404).json({ success: false, message: "User not found." });
       }
 
       const owletServices = await getOwletServicesCached();
-
-      const selectedService =
-        owletServices.find(
-          service =>
-            String(service.service) ===
-            String(serviceId)
-        );
-
+      const selectedService = owletServices.find(
+        item => String(item.service) === String(serviceId)
+      );
 
       if (!selectedService) {
-
-        return res.status(404).json({
-          success: false,
-          message: "Selected service was not found."
-        });
-
+        return res.status(404).json({ success: false, message: "Selected service was not found. Please refresh services and try again." });
       }
 
       if (isTikTokFollowersService(selectedService) && !ALLOWED_TIKTOK_FOLLOWER_SERVICE_IDS.has(String(selectedService.service))) {
@@ -1381,247 +1341,280 @@ app.post(
         return res.status(400).json({ success: false, message: "This TikTok Views service is not enabled on PK-BOOSTER." });
       }
 
-      const serviceOverride = await ServicePrice.findOne({ serviceId: String(selectedService.service) }).lean();
-      if (serviceOverride && serviceOverride.enabled === false) {
-        return res.status(400).json({ success: false, message: "This service is currently unavailable." });
-      }
-
-      const minimum = Number(serviceOverride?.minOverride ?? selectedService.min ?? 1);
-
-      const maximum = Number(serviceOverride?.maxOverride ?? selectedService.max ?? 999999999);
-
-
-      if (selectedQuantity < minimum) {
-
-        return res.status(400).json({
-          success: false,
-          message:
-            `Minimum quantity for this service is ${minimum.toLocaleString()}.`
-        });
-
-      }
-
-
-      if (selectedQuantity > maximum) {
-
-        return res.status(400).json({
-          success: false,
-          message:
-            `Maximum quantity for this service is ${maximum.toLocaleString()}.`
-        });
-
-      }
-
-      const owletCost = Number(selectedService.rate || 0);
       const savedPrice = await ServicePrice.findOne({
         serviceId: String(selectedService.service)
       }).lean();
 
-      const defaultMarkup = 68.35;
-      const sellingRate = savedPrice
-        ? Number(savedPrice.sellingRate)
-        : owletCost + (owletCost * defaultMarkup / 100);
-
-      const totalPrice = Math.ceil(
-        (selectedQuantity / 1000) * sellingRate
-      );
-
-      const currentBalance =
-        Number(user.balance || 0);
-
-
-      if (currentBalance < totalPrice) {
-
-        return res.status(400).json({
-          success: false,
-          message:
-            `Insufficient wallet balance. You need ₦${totalPrice.toLocaleString()} but your balance is ₦${currentBalance.toLocaleString()}.`
-        });
-
+      if (savedPrice && savedPrice.enabled === false) {
+        return res.status(400).json({ success: false, message: "This service is currently unavailable." });
       }
 
+      const minimum = Number(savedPrice?.minOverride ?? selectedService.min ?? 1);
+      const maximum = Number(savedPrice?.maxOverride ?? selectedService.max ?? 999999999);
+
+      if (selectedQuantity < minimum || selectedQuantity > maximum) {
+        return res.status(400).json({
+          success: false,
+          message: `Quantity must be between ${minimum.toLocaleString()} and ${maximum.toLocaleString()}.`
+        });
+      }
+
+      const providerRate = Number(selectedService.rate || 0);
+      const sellingRate = savedPrice
+        ? Number(savedPrice.sellingRate)
+        : providerRate + (providerRate * 68.35 / 100);
+
+      if (!Number.isFinite(sellingRate) || sellingRate <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: "This service does not have a valid selling price yet. Please contact support."
+        });
+      }
+
+      const totalPrice = Math.ceil((selectedQuantity / 1000) * sellingRate);
+      if (!Number.isFinite(totalPrice) || totalPrice <= 0) {
+        return res.status(400).json({ success: false, message: "Unable to calculate the order price." });
+      }
+
+      // Create a local order record before contacting the provider. This gives every
+      // wallet debit a permanent order reference for audit and recovery.
+      order = await Order.create({
+        userId: user._id,
+        serviceId: String(selectedService.service),
+        serviceName: selectedService.name || `Service ${serviceId}`,
+        platform: platform || "",
+        link: String(link).trim(),
+        quantity: selectedQuantity,
+        amount: totalPrice,
+        providerCharge: providerRate * (selectedQuantity / 1000),
+        status: "Pending",
+        walletDeducted: false,
+        providerSubmissionError: ""
+      });
+
+      // Atomic debit: concurrent requests cannot spend the same wallet funds.
       const debitedUser = await User.findOneAndUpdate(
         { _id: user._id, balance: { $gte: totalPrice } },
         { $inc: { balance: -totalPrice } },
         { new: true }
       );
+
       if (!debitedUser) {
+        await Order.deleteOne({ _id: order._id });
+        order = null;
         return res.status(400).json({
           success: false,
           message: "Insufficient wallet balance. Please refresh your wallet and try again."
         });
       }
-      walletReserved=true;
-      reservedAmount=totalPrice;
-      reservedUserId=user._id;
-      user.balance=Number(debitedUser.balance||0);
+      walletDebited = true;
 
-      const owletResponse =
-        await axios.post(
+      // Persist the debit ledger entry BEFORE submitting the provider order.
+      // If the ledger cannot be written, restore the wallet and do not submit.
+      try {
+        await Transaction.create({
+          userId: user._id,
+          txRef: `ORDER-${order._id}`,
+          type: "order",
+          amount: totalPrice,
+          currency: "NGN",
+          status: "successful",
+          balanceAfter: Number(debitedUser.balance || 0),
+          note: `PK-BOOSTER order ${order._id}`
+        });
+      } catch (ledgerError) {
+        await User.updateOne({ _id: user._id }, { $inc: { balance: totalPrice } });
+        walletDebited = false;
+        await Order.deleteOne({ _id: order._id });
+        order = null;
+        throw new Error(`Wallet transaction could not be recorded; no provider order was sent. ${ledgerError.message}`);
+      }
+
+      await Order.updateOne(
+        { _id: order._id },
+        { $set: { walletDeducted: true } }
+      );
+
+      // From this point onward, a network error is ambiguous: the provider may
+      // have accepted the order even if our server did not receive its response.
+      // Never auto-refund an ambiguous submission, as that can give away a free boost.
+      providerRequestStarted = true;
+      let owletResponse;
+      try {
+        owletResponse = await axios.post(
           process.env.OWLET_API_URL,
           {
             key: process.env.OWLET_API_KEY,
-
             action: "add",
-
             service: selectedService.service,
-
-            link: link,
-
+            link: String(link).trim(),
             quantity: selectedQuantity
           },
           {
-            headers: {
-              "Content-Type": "application/json"
-            }
+            headers: { "Content-Type": "application/json" },
+            timeout: 25000
           }
         );
+      } catch (providerError) {
+        const providerBody = providerError.response?.data;
+        const explicitReject = providerBody && !providerBody.order && (
+          providerBody.error || providerBody.success === false
+        );
 
+        if (explicitReject) {
+          await Order.updateOne(
+            { _id: order._id },
+            { $set: { status: "Failed", providerSubmissionError: String(providerBody.error || "Provider rejected the order.") } }
+          );
+          order.status = "Failed";
+          order.walletDeducted = true;
+          await refundOrderOnce(order, "ORDER-REFUND");
+          const freshUser = await User.findById(user._id).select("balance");
+          return res.status(400).json({
+            success: false,
+            refunded: true,
+            message: providerBody.error || "Owlet rejected the order. Your wallet has been refunded.",
+            balance: Number(freshUser?.balance || 0)
+          });
+        }
 
-      console.log(
-        "OWLET ORDER RESPONSE:",
-        owletResponse.data
-      );
+        await Order.updateOne(
+          { _id: order._id },
+          { $set: {
+            status: "Pending",
+            providerSubmissionError: "Provider response was not received. Check provider status before retrying."
+          } }
+        );
+        const freshUser = await User.findById(user._id).select("balance");
+        return res.status(202).json({
+          success: true,
+          pendingConfirmation: true,
+          message: "Your wallet has been charged and your order is awaiting provider confirmation. Please do not submit it again.",
+          order: {
+            id: String(order._id),
+            service: order.serviceName,
+            link: order.link,
+            quantity: order.quantity,
+            amount: order.amount,
+            status: "Pending"
+          },
+          balance: Number(freshUser?.balance || 0)
+        });
+      }
 
-      const owletData =
-        owletResponse.data;
+      const owletData = owletResponse?.data;
+      console.log("OWLET ORDER RESPONSE:", owletData);
 
-
-      if (
-        !owletData ||
-        !owletData.order
-      ) {
-        if(walletReserved){await User.updateOne({_id:reservedUserId},{$inc:{balance:reservedAmount}});walletReserved=false;}
-
+      if (!owletData || !owletData.order) {
+        // A clear provider rejection is safe to refund. Keep the local order and
+        // ledger history so the refund is auditable and cannot be repeated.
+        await Order.updateOne(
+          { _id: order._id },
+          { $set: { status: "Failed", providerSubmissionError: String(owletData?.error || "Owlet rejected the order.") } }
+        );
+        order.status = "Failed";
+        order.walletDeducted = true;
+        await refundOrderOnce(order, "ORDER-REFUND");
+        const freshUser = await User.findById(user._id).select("balance");
         return res.status(400).json({
           success: false,
-          message:
-            owletData?.error ||
-            "Owlet rejected the order."
+          refunded: true,
+          message: owletData?.error || "Owlet rejected the order. Your wallet has been refunded.",
+          balance: Number(freshUser?.balance || 0)
         });
-
       }
 
-      const order = await Order.create({
-
-  userId: user._id,
-
-  providerOrderId:
-    String(owletData.order),
-
-  serviceId:
-    String(selectedService.service),
-
-  serviceName:
-    selectedService.name,
-
-  platform:
-    platform,
-
-  link:
-    link,
-
-  quantity:
-    selectedQuantity,
-
-  amount:
-    totalPrice,
-
-  status:
-    "processing",
-
-  providerCharge:
-    Number(selectedService.rate || 0) * (selectedQuantity / 1000)
-
-});
-
-      await Transaction.create({
-
-        userId: user._id,
-
-        txRef:
-          `ORDER-${order._id}`,
-
-        type:
-          "order",
-
-        amount:
-          totalPrice,
-
-        currency:
-          "NGN",
-
-        status:
-          "successful",
-        balanceAfter: user.balance,
-        note: `PK-BOOSTER order ${order._id}`
-
-      });
-      walletReserved=false;
-
-      sendOrderStatusEmail(order, "placed").catch(emailError => console.error("Order placed email error:", emailError.message || emailError));
-
-    res.json({
-
-  success: true,
-
-  message:
-    "Boost order placed successfully.",
-
-  order: {
-
-    id: order._id,
-
-    providerOrderId:
-      order.providerOrderId,
-
-    service:
-      order.serviceName,
-
-    link:
-      order.link,
-
-    quantity:
-      order.quantity,
-
-    amount:
-      order.amount,
-
-    status:
-      order.status
-
-  },
-
-  balance:
-    user.balance
-
-});
-
-
-    } catch (error) {
-      if(walletReserved&&reservedUserId){
-        try{await User.updateOne({_id:reservedUserId},{$inc:{balance:reservedAmount}});}catch(refundError){console.error("Wallet rollback failed:",refundError.message);}
-      }
-
-      console.error(
-        "Create order error:",
-        error.response?.data ||
-        error.message
+      // Provider accepted. Update the existing order record; never roll back the
+      // customer's debit if a later email or response operation fails.
+      await Order.updateOne(
+        { _id: order._id },
+        {
+          $set: {
+            providerOrderId: String(owletData.order),
+            status: "processing",
+            providerSubmissionError: ""
+          }
+        }
       );
 
+      order.providerOrderId = String(owletData.order);
+      order.status = "processing";
 
-      res.status(500).json({
+      sendOrderStatusEmail(order, "placed").catch(emailError =>
+        console.error("Order placed email error:", emailError.message || emailError)
+      );
 
-        success: false,
-
-        message:
-          error.response?.data?.error ||
-          "Unable to place order."
-
+      const freshUser = await User.findById(user._id).select("balance");
+      return res.json({
+        success: true,
+        message: "Boost order placed successfully.",
+        order: {
+          id: String(order._id),
+          providerOrderId: order.providerOrderId,
+          service: order.serviceName,
+          link: order.link,
+          quantity: order.quantity,
+          amount: order.amount,
+          status: order.status
+        },
+        balance: Number(freshUser?.balance || 0)
       });
 
-    }
+    } catch (error) {
+      console.error("Create order error:", error.response?.data || error.message);
 
+      // Only undo a debit when the provider request has NOT started. Once it has
+      // started, its outcome may be unknown; an automatic refund could create a
+      // free order if the provider actually accepted it.
+      if (walletDebited && !providerRequestStarted && order) {
+        try {
+          await User.updateOne(
+            { _id: order.userId },
+            { $inc: { balance: Number(order.amount || 0) } }
+          );
+          await Transaction.updateOne(
+            { txRef: `ORDER-${order._id}` },
+            { $set: { status: "reversed", note: `Reversed before provider submission for order ${order._id}` } }
+          );
+          await Order.deleteOne({ _id: order._id });
+        } catch (rollbackError) {
+          console.error("Pre-provider wallet rollback failed:", rollbackError.message);
+        }
+      }
+
+      if (providerRequestStarted && order) {
+        try {
+          await Order.updateOne(
+            { _id: order._id },
+            { $set: {
+              status: "Pending",
+              providerSubmissionError: "Provider submission started but the final response could not be saved. Manual confirmation required."
+            } }
+          );
+          const currentUser = await User.findById(order.userId).select("balance");
+          return res.status(202).json({
+            success: true,
+            pendingConfirmation: true,
+            message: "Your wallet has been charged. The provider response is being checked; please do not place this order again.",
+            order: {
+              id: String(order._id),
+              service: order.serviceName,
+              quantity: order.quantity,
+              amount: order.amount,
+              status: "Pending"
+            },
+            balance: Number(currentUser?.balance || 0)
+          });
+        } catch (pendingSaveError) {
+          console.error("Could not mark ambiguous order pending:", pendingSaveError.message);
+        }
+      }
+
+      return res.status(500).json({
+        success: false,
+        message: "Unable to complete the order. If your wallet was charged, contact support before trying again."
+      });
+    }
   }
 );
 
