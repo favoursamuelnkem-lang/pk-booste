@@ -22,8 +22,12 @@ function adminPager(targetId,page,pages,onPage){
  pager.querySelector("[data-next]").onclick=()=>onPage(page+1);
 }
 async function loadServices(force=false){
- if(force||!adminServicesCache){const d=await api("/api/admin/services");adminServicesCache=d.services||[];if(d.refreshing)setTimeout(()=>{adminServicesCache=null;loadServices().catch(showError)},6000);}
- const q=($("serviceSearch").value||"").toLowerCase();
+ if(force||!adminServicesCache){
+  const d=await api("/api/admin/services");
+  adminServicesCache=d.services||[];
+  if(d.refreshing && !adminServicesCache.length) setTimeout(()=>{adminServicesCache=null;loadServices().catch(showError)},10000);
+ }
+ const q=( $("serviceSearch").value||"").toLowerCase();
  const filtered=adminServicesCache.filter(x=>`${x.serviceId} ${x.name} ${x.displayName} ${x.category}`.toLowerCase().includes(q));
  const pages=Math.max(1,Math.ceil(filtered.length/ADMIN_SERVICE_PAGE_SIZE));servicePage=Math.min(Math.max(1,servicePage),pages);
  const rows=filtered.slice((servicePage-1)*ADMIN_SERVICE_PAGE_SIZE,servicePage*ADMIN_SERVICE_PAGE_SIZE);
@@ -32,24 +36,26 @@ async function loadServices(force=false){
  <td data-label="Provider service">${esc(x.name)}</td>
  <td data-label="Customer name"><input data-sname="${x.serviceId}" value="${esc(x.displayName)}" class="input w-full"></td>
  <td data-label="Category"><input data-scat="${x.serviceId}" value="${esc(x.category)}" class="input w-full"></td>
- <td data-label="Provider cost">${Number(x.providerRate).toFixed(2)}</td>
+ <td data-label="Provider cost / 1K">${money(x.providerRate)}</td>
+ <td data-label="Your selling price / 1K"><input data-selling="${x.serviceId}" type="number" min="0" step="0.01" value="${Number(x.sellingRate||0).toFixed(2)}" class="input w-full"></td>
  <td data-label="Enabled"><input data-enabled="${x.serviceId}" type="checkbox" ${x.enabled?"checked":""} class="w-5 h-5"></td>
  <td data-label="Minimum"><input data-min="${x.serviceId}" type="number" value="${x.minOverride??x.min}" class="input w-full"></td>
  <td data-label="Maximum"><input data-max="${x.serviceId}" type="number" value="${x.maxOverride??x.max}" class="input w-full"></td>
- <td data-label="Description"><input data-desc="${x.serviceId}" value="${esc(x.description)}" class="input w-full"></td>
- <td data-label="Action"><button class="btn w-full" data-save-service="${x.serviceId}">Save</button></td></tr>`).join("")||`<tr><td colspan="10" class="text-center text-gray-400">No services found.</td></tr>`;
+ <td data-label="Action"><button class="btn w-full" data-save-service="${x.serviceId}">Save</button></td></tr>`).join("")||`<tr><td colspan="10" class="text-center text-gray-400 py-8">${adminServicesCache.length===0?'No provider services are loaded yet. Use Refresh to retry the Owlet catalogue.':'No services found.'}</td></tr>`;
  adminPager("servicesTable",servicePage,pages,p=>{servicePage=p;loadServices().catch(showError)});
  document.querySelectorAll("[data-save-service]").forEach(b=>b.onclick=async()=>{
-  const id=b.dataset.saveService,row=b.closest("tr");
-  await api(`/api/admin/services/${id}`,{method:"PUT",body:JSON.stringify({
-   displayName:row.querySelector(`[data-sname="${CSS.escape(id)}"]`).value,
-   category:row.querySelector(`[data-scat="${CSS.escape(id)}"]`).value,
-   enabled:row.querySelector(`[data-enabled="${CSS.escape(id)}"]`).checked,
-   minOverride:row.querySelector(`[data-min="${CSS.escape(id)}"]`).value,
-   maxOverride:row.querySelector(`[data-max="${CSS.escape(id)}"]`).value,
-   description:row.querySelector(`[data-desc="${CSS.escape(id)}"]`).value
-  })});
-  adminServicesCache=null;await loadServices(true);
+  const id=b.dataset.saveService,row=b.closest("tr");b.disabled=true;b.textContent="Saving...";
+  try{
+   await api(`/api/admin/services/${id}`,{method:"PUT",body:JSON.stringify({
+    displayName:row.querySelector(`[data-sname="${CSS.escape(id)}"]`).value,
+    category:row.querySelector(`[data-scat="${CSS.escape(id)}"]`).value,
+    sellingRate:Number(row.querySelector(`[data-selling="${CSS.escape(id)}"]`).value),
+    enabled:row.querySelector(`[data-enabled="${CSS.escape(id)}"]`).checked,
+    minOverride:row.querySelector(`[data-min="${CSS.escape(id)}"]`).value,
+    maxOverride:row.querySelector(`[data-max="${CSS.escape(id)}"]`).value
+   })});
+   adminServicesCache=null;await loadServices(true);
+  }catch(e){showError(e);b.disabled=false;b.textContent="Save"}
  });
 }
 async function loadPrices(force=false){

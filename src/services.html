@@ -374,6 +374,10 @@
                 Facebook
               </option>
 
+              <option value="Telegram">Telegram</option>
+              <option value="WhatsApp">WhatsApp</option>
+              <option value="Others">Others</option>
+
               <option value="X">
                 X / Twitter
               </option>
@@ -603,6 +607,11 @@
             </div>
 
 
+            <div class="flex justify-between gap-4">
+              <span class="text-sm text-gray-400">Price per 1,000</span>
+              <span id="summaryRate" class="text-sm font-bold text-right">₦0.00</span>
+            </div>
+
             <div
               class="flex justify-between gap-4"
             >
@@ -677,6 +686,11 @@
             </p>
 
           </div>
+
+          <button id="summaryPlaceOrderBtn" type="button" class="w-full mt-5 py-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-extrabold shadow-lg shadow-purple-500/15">
+            Place Order
+          </button>
+          <p class="text-xs text-center text-gray-400 mt-2">Your wallet will be charged after the provider accepts the order.</p>
 
         </aside>
 
@@ -837,23 +851,11 @@
         </a>
 
 
-        <a
-          href="services.html"
-          class="relative flex flex-col items-center"
-        >
-
-          <span
-            class="-mt-7 w-14 h-14 rounded-full bg-purple-500 text-white flex items-center justify-center text-2xl shadow-lg border-4 border-[#f6f8fa]"
-          >
-            +
+        <a href="order.html" aria-label="Boost / place order" class="relative flex flex-col items-center">
+          <span class="-mt-7 w-14 h-14 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-lg border-4 border-[#f6f8fa]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/><path d="M10 10h8M14 6v8"/></svg>
           </span>
-
-          <span
-            class="text-[10px] font-bold text-purple-500 mt-1"
-          >
-            Boost
-          </span>
-
+          <span class="text-[10px] font-bold text-purple-600 mt-1">Boost</span>
         </a>
 
 
@@ -873,19 +875,9 @@
         </a>
 
 
-        <a
-          href="wallet.html"
-          class="flex flex-col items-center gap-1 py-2 text-gray-400"
-        >
-
-          <span class="text-lg">
-            ◉
-          </span>
-
-          <span class="text-[10px]">
-            Wallet
-          </span>
-
+        <a href="more.html" class="flex flex-col items-center gap-1 py-2 text-gray-400">
+          <span class="text-lg">👤</span>
+          <span class="text-[10px]">More</span>
         </a>
 
       </div>
@@ -1006,6 +998,8 @@ const summaryQuantity =
 
 const summaryPrice =
   document.getElementById("summaryPrice");
+const summaryRate = document.getElementById("summaryRate");
+const summaryPlaceOrderBtn = document.getElementById("summaryPlaceOrderBtn");
 
 const placeOrderBtn =
   document.getElementById("placeOrderBtn");
@@ -1074,6 +1068,7 @@ loadServices();
 const boostType = document.getElementById("boostType");
 
 function renderMatchingServices() {
+  const previousServiceId = service.value;
   if (servicesLoading || !servicesLoaded) {
     service.innerHTML = `<option value="">Loading services…</option>`;
     return;
@@ -1091,8 +1086,8 @@ function renderMatchingServices() {
 
   const matchingServices = services.filter(function (item) {
     const serviceId = String(item.service || item.serviceId || "");
-    const platformText = `${String(item.name || "")} ${String(item.category || "")} ${String(item.type || "")} ${String(item.description || "")}`.toLowerCase();
-    const serviceText = platformText;
+    const platformText = `${String(item.platform || "")} ${String(item.name || "")} ${String(item.category || "")} ${String(item.type || "")} ${String(item.boostType || "")} ${String(item.description || "")}`.toLowerCase();
+    const serviceText = `${String(item.boostType || "")} ${String(item.type || "")} ${String(item.name || "")} ${String(item.category || "")}`.toLowerCase();
     const allowedFollowers = ["8288", "23425"].includes(serviceId);
     const allowedLikes = serviceId === "21632";
     const allowedViews = ["23148", "20884"].includes(serviceId);
@@ -1125,14 +1120,19 @@ function renderMatchingServices() {
 
   matchingServices.forEach(function (item) {
     const option = document.createElement("option");
-    option.value = item.service;
-    option.textContent = `${item.name} — ₦${Number(item.price || 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per 1,000`;
-    option.dataset.price = item.price;
+    const serviceId = String(item.service || item.serviceId || item.providerServiceId || "");
+    const price = Number(item.pricePer1000 ?? item.price ?? 0);
+    option.value = serviceId;
+    option.textContent = `${item.name} — ₦${price.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per 1,000`;
+    option.dataset.price = String(price);
     option.dataset.min = String(String(item.service) === "8288" ? 50 : (String(item.service) === "23425" ? 200 : item.min));
     option.dataset.max = item.max;
     service.appendChild(option);
   });
 
+  if (previousServiceId && matchingServices.some(item => String(item.service || item.serviceId || item.providerServiceId) === previousServiceId)) {
+    service.value = previousServiceId;
+  }
   updateSummary();
 }
 
@@ -1211,7 +1211,8 @@ function updateSummary() {
       "—";
 
     summaryPrice.textContent =
-      "₦0";
+      "₦0.00";
+    if (summaryRate) summaryRate.textContent = "₦0.00";
 
     return;
 
@@ -1230,7 +1231,8 @@ function updateSummary() {
       "—";
 
     summaryPrice.textContent =
-      "₦0";
+      "₦0.00";
+    if (summaryRate) summaryRate.textContent = "₦0.00";
 
     return;
 
@@ -1263,6 +1265,8 @@ function updateSummary() {
     totalPrice.toLocaleString("en-NG");
 
 }
+
+summaryPlaceOrderBtn?.addEventListener("click", () => placeOrderBtn.click());
 
 placeOrderBtn.addEventListener(
   "click",

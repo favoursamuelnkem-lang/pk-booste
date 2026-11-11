@@ -1288,7 +1288,7 @@ app.get("/api/services",async(req,res)=>{
   const catalog=await getOwletServicesCached(),overrides=await ServicePrice.find({}).lean(),map=new Map(overrides.map(x=>[String(x.serviceId),x]));
   const services=catalog.filter(shouldExposeService).map(x=>{
    const id=String(x.service),saved=map.get(id),rate=Number(x.rate||0);if(saved?.enabled===false)return null;
-   const price=saved?Number(saved.sellingRate):rate*1.6835,tiktok=["8288","23425","21632","23148","20884"].includes(id),text=`${x.name||""} ${x.category||""}`.toLowerCase();
+   const price=saved&&Number(saved.sellingRate)>0?Number(saved.sellingRate):rate*1.6835,tiktok=["8288","23425","21632","23148","20884"].includes(id),text=`${x.name||""} ${x.category||""}`.toLowerCase();
    const platform=tiktok?"TikTok":/instagram/.test(text)?"Instagram":/facebook/.test(text)?"Facebook":/youtube/.test(text)?"YouTube":/telegram/.test(text)?"Telegram":/whatsapp/.test(text)?"WhatsApp":(x.category||"Other");
    const boostType=id==="21632"?"Likes":["23148","20884"].includes(id)?"Views":["8288","23425"].includes(id)?"Followers":(x.type||x.category||"Other");
    return {service:id,serviceId:id,providerServiceId:id,name:saved?.displayName||x.name,type:boostType,boostType,category:saved?.category||x.category,platform,price,pricePer1000:price,min:id==="8288"?50:id==="23425"?200:(saved?.minOverride??x.min),max:saved?.maxOverride??x.max};
@@ -2343,15 +2343,16 @@ app.get("/api/admin/provider",adminProtect,async(req,res)=>{
  try{
   const [balanceResponse,raw]=await Promise.all([axios.post(process.env.OWLET_API_URL,{key:process.env.OWLET_API_KEY,action:"balance"},{timeout:10000}),getOwletServicesCached()]);
   const saved=await ServicePrice.find({}).lean(),map=new Map(saved.map(x=>[String(x.serviceId),x]));
-  const services=raw.map(x=>{const id=String(x.service),p=Number(x.rate||0),o=map.get(id);return {service:id,name:o?.displayName||x.name,category:o?.category||x.category,type:x.type,providerRate:p,sellingRate:o?Number(o.sellingRate):p*1.6835,enabled:o?.enabled!==false,min:id==="8288"?50:id==="23425"?200:(o?.minOverride??x.min),max:o?.maxOverride??x.max};});
+  const services=raw.map(x=>{const id=String(x.service),p=Number(x.rate||0),o=map.get(id);return {service:id,name:o?.displayName||x.name,category:o?.category||x.category,type:x.type,providerRate:p,sellingRate:o&&Number(o.sellingRate)>0?Number(o.sellingRate):p*1.6835,enabled:o?.enabled!==false,min:id==="8288"?50:id==="23425"?200:(o?.minOverride??x.min),max:o?.maxOverride??x.max};});
   res.json({success:true,balance:balanceResponse.data,services});
  }catch(e){console.error("Admin provider error:",e.response?.data||e.message);res.status(502).json({success:false,message:"Unable to load provider information."});}
 });
 
 app.get("/api/admin/prices",adminProtect,async(req,res)=>{
  try{
-  const raw=Array.isArray(owletServicesCache)?owletServicesCache:[],refreshing=!raw.length||Date.now()-owletServicesCacheAt>OWLET_SERVICES_CACHE_TTL_MS;
-  if(refreshing&&!owletServicesRequestInFlight)getOwletServicesCached().catch(e=>console.warn("Background Owlet refresh:",e.message));
+  let raw=Array.isArray(owletServicesCache)?owletServicesCache:[],refreshing=Date.now()-owletServicesCacheAt>OWLET_SERVICES_CACHE_TTL_MS;
+  if(!raw.length){raw=await getOwletServicesCached();refreshing=false;}
+  else if(refreshing&&!owletServicesRequestInFlight)getOwletServicesCached().catch(e=>console.warn("Background Owlet refresh:",e.message));
   const saved=await ServicePrice.find({}).lean(),map=new Map(saved.map(x=>[String(x.serviceId),x]));
   const services=raw.map(x=>{const id=String(x.service),p=Number(x.rate||0),o=map.get(id);return {serviceId:id,name:o?.displayName||x.name,category:o?.category||x.category||"Other",providerRate:p,sellingRate:o?Number(o.sellingRate):p*1.6835,customized:!!o,min:o?.minOverride??x.min,max:o?.maxOverride??x.max,enabled:o?.enabled!==false};});
   res.json({success:true,services,refreshing});
@@ -2392,16 +2393,21 @@ app.get("/api/admin/activity", adminProtect, async (req, res) => {
 });
 app.get("/api/admin/services",adminProtect,async(req,res)=>{
  try{
-  const raw=Array.isArray(owletServicesCache)?owletServicesCache:[],refreshing=!raw.length||Date.now()-owletServicesCacheAt>OWLET_SERVICES_CACHE_TTL_MS;
-  if(refreshing&&!owletServicesRequestInFlight)getOwletServicesCached().catch(e=>console.warn("Background Owlet refresh:",e.message));
+  let raw=Array.isArray(owletServicesCache)?owletServicesCache:[];
+  let refreshing=Date.now()-owletServicesCacheAt>OWLET_SERVICES_CACHE_TTL_MS;
+  // On a cold start, wait for one bounded provider fetch so the admin does not
+  // receive an empty list and assume there are no services.
+  if(!raw.length){raw=await getOwletServicesCached();refreshing=false;}
+  else if(refreshing&&!owletServicesRequestInFlight){getOwletServicesCached().catch(e=>console.warn("Background Owlet refresh:",e.message));}
   const saved=await ServicePrice.find({}).lean(),map=new Map(saved.map(x=>[String(x.serviceId),x]));
-  const services=raw.map(x=>{const o=map.get(String(x.service));return {serviceId:String(x.service),name:x.name,category:x.category||"Other",providerRate:Number(x.rate||0),min:x.min,max:x.max,enabled:o?.enabled!==false,displayName:o?.displayName||x.name,description:o?.description||"",minOverride:o?.minOverride??null,maxOverride:o?.maxOverride??null};});
+  const services=raw.filter(shouldExposeService).map(x=>{const id=String(x.service),o=map.get(id),providerRate=Number(x.rate||0);return {serviceId:id,name:x.name,category:o?.category||x.category||"Other",providerRate,sellingRate:o&&Number(o.sellingRate)>0?Number(o.sellingRate):providerRate*1.6835,min:x.min,max:x.max,enabled:o?.enabled!==false,displayName:o?.displayName||x.name,description:o?.description||"",minOverride:o?.minOverride??null,maxOverride:o?.maxOverride??null};});
   res.json({success:true,services,refreshing});
- }catch(e){res.status(500).json({success:false,message:"Unable to load services."});}
+ }catch(e){console.error("Admin services catalogue error:",e.response?.data||e.message);res.status(502).json({success:false,message:"Unable to load Owlet services. Check the Owlet API URL and key in Render."});}
 });
 app.put("/api/admin/services/:serviceId",adminProtect,async(req,res)=>{
  try{
   const serviceId=String(req.params.serviceId),body=req.body||{};
+  if(body.sellingRate!==undefined&&(!Number.isFinite(Number(body.sellingRate))||Number(body.sellingRate)<0))return res.status(400).json({success:false,message:"Enter a valid selling price."});
   let raw=Array.isArray(owletServicesCache)?owletServicesCache:[];
   if(!raw.length)raw=await getOwletServicesCached();
   const service=raw.find(x=>String(x.service)===serviceId);
