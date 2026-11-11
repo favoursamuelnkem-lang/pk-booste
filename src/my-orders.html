@@ -166,15 +166,17 @@
 
     function getStatusClass(status) {
         const styles = {
-            "Pending": "bg-yellow-100 text-yellow-700",
-            "In progress": "bg-blue-100 text-blue-700",
-            "Processing": "bg-purple-100 text-purple-700",
-            "Completed": "bg-green-100 text-green-700",
-            "Partial": "bg-orange-100 text-orange-700",
-            "Canceled": "bg-red-100 text-red-700"
+            "pending": "bg-yellow-100 text-yellow-700",
+            "in progress": "bg-blue-100 text-blue-700",
+            "processing": "bg-purple-100 text-purple-700",
+            "completed": "bg-green-100 text-green-700",
+            "partial": "bg-orange-100 text-orange-700",
+            "cancelled": "bg-red-100 text-red-700",
+            "canceled": "bg-red-100 text-red-700",
+            "refunded": "bg-gray-100 text-gray-700",
+            "failed": "bg-red-100 text-red-700"
         };
-
-        return styles[status] || "bg-gray-100 text-gray-700";
+        return styles[String(status || "").toLowerCase()] || "bg-gray-100 text-gray-700";
     }
 
     function renderOrders() {
@@ -332,41 +334,53 @@
 
         try {
             const token = localStorage.getItem("token");
-
             if (!token) {
                 window.location.href = "./login.html";
                 return;
             }
 
-            const response = await fetch(API+"/orders", {
+            const response = await fetch(API + "/api/orders", {
                 method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                }
+                headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                cache: "no-store"
             });
-
-            if (!response.ok) {
-                throw new Error("Unable to load your orders.");
-            }
+            if (!response.ok) throw new Error("Unable to load your orders.");
 
             const data = await response.json();
-
             orders = Array.isArray(data) ? data : data.orders || [];
 
-            renderOrders();
+            // Ask Owlet for the latest status of active orders. Completed/terminal
+            // orders are left alone, and one failed status check won't hide the order.
+            const activeOrders = orders.filter(order =>
+                order.providerOrderId &&
+                ["pending", "processing", "in progress"].includes(String(order.status || "").toLowerCase())
+            ).slice(0, 12);
 
+            await Promise.all(activeOrders.map(async order => {
+                try {
+                    const id = order.id || order._id;
+                    const statusResponse = await fetch(`${API}/api/orders/${encodeURIComponent(id)}/status`, {
+                        headers: { "Authorization": `Bearer ${token}` },
+                        cache: "no-store"
+                    });
+                    const statusData = await statusResponse.json();
+                    if (statusResponse.ok && statusData.success && statusData.order) {
+                        order.status = statusData.order.status || order.status;
+                        order.remains = statusData.order.remains ?? order.remains;
+                        order.startCount = statusData.order.startCount ?? order.startCount;
+                        order.providerCharge = statusData.order.providerCharge ?? order.providerCharge;
+                    }
+                } catch (statusError) {
+                    console.warn("Could not refresh Owlet status for order", order.id || order._id, statusError);
+                }
+            }));
+
+            renderOrders();
             pageMessage.classList.add("hidden");
-
+            await loadWalletBalance();
         } catch (error) {
-            orders = [];
-
-            renderOrders();
-
             pageMessage.textContent = error.message || "Unable to load orders. Please try again.";
-
             pageMessage.classList.remove("hidden");
-
         } finally {
             refreshButton.disabled = false;
             refreshIcon.classList.remove("animate-spin");
@@ -375,16 +389,29 @@
 
     refreshButton.addEventListener("click", loadOrders);
 
-    function loadWalletBalance() {
-        const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    async function loadWalletBalance() {
+        const token = localStorage.getItem("token");
+        const balanceElement = document.getElementById("walletBalance");
+        if (!token || !balanceElement) return;
 
-        const storedBalance = localStorage.getItem("walletBalance");
+        try {
+            const response = await fetch(API + "/get-user", {
+                headers: { "Authorization": `Bearer ${token}` },
+                cache: "no-store"
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success || !data.user) return;
 
-        const balance = storedBalance !== null
-            ? Number(storedBalance)
-            : Number(currentUser.balance || 0);
+            const balance = Number(data.user.balance || 0);
+            balanceElement.textContent = formatNaira(balance);
+            localStorage.setItem("walletBalance", String(balance));
 
-        document.getElementById("walletBalance").textContent = formatNaira(balance);
+            const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+            currentUser.balance = balance;
+            localStorage.setItem("currentUser", JSON.stringify(currentUser));
+        } catch (error) {
+            console.warn("Wallet balance refresh failed:", error);
+        }
     }
 
     document.getElementById("moreButton").addEventListener("click", () => {
@@ -410,8 +437,12 @@
     updateFilterButtons();
     loadOrders();
 
-    // Refresh provider statuses regularly so Owlet completions appear in PK-BOOSTER automatically.
+    // Keep the displayed balance and Owlet order statuses fresh while this page is open.
     setInterval(loadOrders, 30000);
+    window.addEventListener("focus", loadWalletBalance);
+    document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) loadWalletBalance();
+    });
 </script>
 
 

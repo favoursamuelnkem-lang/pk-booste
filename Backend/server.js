@@ -1755,6 +1755,23 @@ app.get(
 
       }
 
+      // An order without a provider ID is still awaiting Owlet confirmation.
+      if (!order.providerOrderId) {
+        return res.json({
+          success: true,
+          order: {
+            id: order._id,
+            providerOrderId: "",
+            status: order.status || "pending",
+            remains: Number(order.remains || 0),
+            startCount: Number(order.startCount || 0),
+            providerCharge: Number(order.providerCharge || 0),
+            refundProcessed: Boolean(order.refundProcessed),
+            providerPending: true
+          }
+        });
+      }
+
       const owletResponse = await axios.post(
         process.env.OWLET_API_URL,
         {
@@ -1807,65 +1824,27 @@ app.get(
 
       }
 
-      let newStatus =
-        providerStatus.toLowerCase();
+      const normalizedProviderStatus = providerStatus.toLowerCase().replace(/[_-]+/g, " ").trim();
+      const statusMap = {
+        "pending": "pending",
+        "in progress": "processing",
+        "processing": "processing",
+        "completed": "completed",
+        "complete": "completed",
+        "success": "completed",
+        "successful": "completed",
+        "partial": "partial",
+        "cancelled": "cancelled",
+        "canceled": "cancelled",
+        "refunded": "refunded"
+      };
+      const newStatus = statusMap[normalizedProviderStatus];
 
-
-      if (
-        newStatus === "in progress"
-      ) {
-
-        newStatus = "processing";
-
-      }
-
-      else if (
-        newStatus === "processing"
-      ) {
-
-        newStatus = "processing";
-
-      }
-
-      else if (
-        newStatus === "pending"
-      ) {
-
-        newStatus = "pending";
-
-      }
-
-      else if (
-        newStatus === "completed"
-      ) {
-
-        newStatus = "completed";
-
-      }
-
-      else if (
-        newStatus === "partial"
-      ) {
-
-        newStatus = "partial";
-
-      }
-
-      else if (
-        newStatus === "cancelled" ||
-        newStatus === "canceled"
-      ) {
-
-        newStatus = "cancelled";
-
-      }
-
-      else if (
-        newStatus === "refunded"
-      ) {
-
-        newStatus = "refunded";
-
+      if (!newStatus) {
+        return res.status(502).json({
+          success: false,
+          message: `Owlet returned an unrecognized order status: ${providerStatus}`
+        });
       }
 
       order.status =

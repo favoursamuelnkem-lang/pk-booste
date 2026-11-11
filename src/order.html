@@ -964,6 +964,11 @@ async function loadWalletBalance() {
     const balance =
       Number(data.user.balance || 0);
 
+    localStorage.setItem("walletBalance", String(balance));
+    const cachedUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    cachedUser.balance = balance;
+    localStorage.setItem("currentUser", JSON.stringify(cachedUser));
+
     walletBalance.textContent =
       "₦" +
       balance.toLocaleString("en-NG", {
@@ -986,6 +991,11 @@ async function loadWalletBalance() {
 }
 
 loadWalletBalance();
+window.addEventListener("focus", loadWalletBalance);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) loadWalletBalance();
+});
+setInterval(loadWalletBalance, 30000);
 
 let services = [];
 let servicesLoaded = false;
@@ -1483,6 +1493,10 @@ placeOrderBtn.addEventListener(
         typeof data.balance !==
         "undefined"
       ) {
+        localStorage.setItem("walletBalance", String(Number(data.balance)));
+        const cachedUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+        cachedUser.balance = Number(data.balance);
+        localStorage.setItem("currentUser", JSON.stringify(cachedUser));
 
         const walletBalance =
           document.getElementById(
