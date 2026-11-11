@@ -117,43 +117,7 @@ app.get("/services",async(req,res)=>{
  }catch(e){console.error("Service list failed:",e.message);res.status(500).json({message:"Unable to load saved services."});}
 });
 
-app.post("/orders/owlet",auth,async(req,res)=>{
-  let debitedUser=null,charge=0,serviceDoc=null;
-  try{
-    const providerServiceId=Number(req.body.service),quantity=Number(req.body.quantity),link=String(req.body.link||"").trim();
-    if(!Number.isInteger(providerServiceId)||providerServiceId<=0||!Number.isInteger(quantity)||quantity<=0||!/^https?:\/\//i.test(link))
-      return res.status(400).json({message:"Enter a valid service, quantity and target link."});
-    serviceDoc=await Service.findOne({provider:"owlet",providerServiceId,active:true});
-    if(!serviceDoc)return res.status(404).json({message:"This service is not enabled by the admin."});
-    if(quantity<serviceDoc.min||quantity>serviceDoc.max)return res.status(400).json({message:`Quantity must be between ${serviceDoc.min} and ${serviceDoc.max}.`});
-    charge=money(Number(serviceDoc.pricePer1000||0)*quantity/1000);
-    // Atomically reserve the customer's balance so concurrent orders cannot overspend it.
-    debitedUser=await User.findOneAndUpdate({_id:req.userId,balance:{$gte:charge}},{$inc:{balance:-charge}},{new:true});
-    if(!debitedUser)return res.status(400).json({message:"Insufficient wallet balance.",charge});
-    let providerResult;
-    try{
-      providerResult=await owletRequest({action:"add",service:providerServiceId,link,quantity});
-      if(!providerResult||!providerResult.order)throw new Error("Owlet did not return an order ID.");
-    }catch(providerError){
-      const refunded=await User.findByIdAndUpdate(req.userId,{$inc:{balance:charge}},{new:true});
-      if(refunded)await Transaction.create({user:refunded._id,type:"refund",amount:charge,balanceAfter:refunded.balance,note:"Automatic refund: provider order submission failed",reference:`owlet-failed-${providerServiceId}-${Date.now()}`});
-      debitedUser=null;
-      return res.status(502).json({message:providerError.message||"Unable to submit order. Your wallet was not charged."});
-    }
-    const order=await Order.create({user:debitedUser._id,service:serviceDoc._id,serviceName:serviceDoc.name,platform:serviceDoc.platform,boostType:String(req.body.boostType||serviceDoc.boostType||""),link,quantity,amount:charge,status:"Pending",providerOrderId:String(providerResult.order)});
-    await record(debitedUser,"order",-charge,`Owlet order ${providerResult.order}`,`owlet-${providerResult.order}`);
-    sendOrderPlacedEmail(debitedUser,order).catch(()=>{});
-    res.status(201).json({message:"Order submitted successfully.",order,balance:debitedUser.balance,amount:charge});
-  }catch(e){
-    if(debitedUser){
-      try{
-        const refunded=await User.findByIdAndUpdate(req.userId,{$inc:{balance:charge}},{new:true});
-        if(refunded)await Transaction.create({user:refunded._id,type:"refund",amount:charge,balanceAfter:refunded.balance,note:"Automatic refund: order could not be recorded",reference:`owlet-record-failed-${Date.now()}`});
-      }catch(refundError){console.error("Order refund failed:",refundError.message);}
-    }
-    res.status(500).json({message:"Unable to place order. Please check your order history before trying again."});
-  }
-});app.get("/orders",auth,async(req,res)=>{try{
+app.post("/orders/owlet",auth,async(req,res)=>{try{const service=Number(req.body.service),quantity=Number(req.body.quantity),link=String(req.body.link||"").trim();if(!Number.isInteger(service)||service<=0||!Number.isInteger(quantity)||quantity<=0||!link)return res.status(400).json({message:"Valid service ID, link, and quantity are required."});const s=await Service.findOne({provider:"owlet",providerServiceId:service,active:true}),u=await User.findById(req.userId);if(!s)return res.status(404).json({message:"This service is not enabled by the admin."});if(quantity<s.min||quantity>s.max)return res.status(400).json({message:`Quantity must be between ${s.min} and ${s.max}.`});const charge=money(s.pricePer1000*quantity/1000);if(u.balance<charge)return res.status(400).json({message:"Insufficient wallet balance.",charge});const result=await owletRequest({action:"add",service,link,quantity});if(!result.order)return res.status(502).json({message:"Owlet did not return an order ID.",provider:result});u.balance=money(u.balance-charge);await u.save();const order=await Order.create({user:u._id,service:s._id,serviceName:s.name,platform:s.platform,boostType:String(req.body.boostType||""),link,quantity,amount:charge,status:"Pending",providerOrderId:String(result.order)});await record(u,"order",-charge,`Owlet order ${result.order}`,`owlet-${result.order}`);sendOrderPlacedEmail(u,order).catch(()=>{});res.status(201).json({message:"Order submitted.",order,balance:u.balance});}catch(e){res.status(502).json({message:e.message||"Unable to submit Owlet order."});}});app.get("/orders",auth,async(req,res)=>{try{
  const orders=await Order.find({user:req.userId}).sort({createdAt:-1});
  // Synchronize provider-owned orders with Owlet before returning the order list.
  for(const order of orders){
@@ -165,32 +129,9 @@ app.post("/orders/owlet",auth,async(req,res)=>{
    if(order.status!==mapped){const previousStatus=order.status;order.status=mapped;await order.save();if(mapped==="Completed"&&previousStatus!=="Completed"){const orderUser=await User.findById(order.user);if(orderUser)sendOrderCompletedEmail(orderUser,order).catch(()=>{});}}
   }catch(providerError){console.warn("Owlet status sync skipped for order",order.providerOrderId,providerError.message);}
  }
- res.json({orders:orders.map(order=>{const item=order.toObject?order.toObject():order;return {...item,id:String(item._id),service:item.serviceName||"Social media service",price:Number(item.amount||0),delivered:Number(item.delivered||0)};})});
+ res.json({orders});
  }catch(error){res.status(500).json({message:"Unable to load orders."});}});
-app.post("/orders",auth,async(req,res)=>{
-  let debited=null,amount=0;
-  try{
-    const {serviceId,link,quantity}=req.body,q=Number(quantity);
-    const service=await Service.findOne({_id:serviceId,active:true});
-    if(!service)return res.status(404).json({message:"Service not found."});
-    if(!link||!/^https?:\/\//i.test(String(link))||!Number.isInteger(q)||q<service.min||q>service.max)return res.status(400).json({message:`Quantity must be between ${service.min} and ${service.max}.`});
-    amount=money(q*Number(service.pricePer1000||0)/1000);
-    debited=await User.findOneAndUpdate({_id:req.userId,balance:{$gte:amount}},{$inc:{balance:-amount}},{new:true});
-    if(!debited)return res.status(400).json({message:"Insufficient wallet balance.",amount});
-    let providerOrderId;
-    if(service.provider==="owlet"&&service.providerServiceId){
-      try{const result=await owletRequest({action:"add",service:service.providerServiceId,link,quantity:q});if(!result?.order)throw new Error("Owlet did not return an order ID.");providerOrderId=String(result.order);}
-      catch(providerError){const refunded=await User.findByIdAndUpdate(req.userId,{$inc:{balance:amount}},{new:true});if(refunded)await Transaction.create({user:refunded._id,type:"refund",amount,balanceAfter:refunded.balance,note:"Automatic refund: provider order submission failed",reference:`order-failed-${Date.now()}`});debited=null;return res.status(502).json({message:providerError.message||"Order failed. Your wallet was not charged."});}
-    }
-    const order=await Order.create({user:debited._id,service:service._id,serviceName:service.name,platform:service.platform,boostType:service.boostType||"",link,quantity:q,amount,status:"Pending",providerOrderId});
-    await record(debited,"order",-amount,`Order ${order._id}`);
-    sendOrderPlacedEmail(debited,order).catch(()=>{});
-    res.status(201).json({message:"Order placed successfully.",order,balance:debited.balance,amount});
-  }catch(e){
-    if(debited){try{const refunded=await User.findByIdAndUpdate(req.userId,{$inc:{balance:amount}},{new:true});if(refunded)await Transaction.create({user:refunded._id,type:"refund",amount,balanceAfter:refunded.balance,note:"Automatic refund: order could not be recorded",reference:`order-record-failed-${Date.now()}`});}catch(refundError){console.error("Order refund failed:",refundError.message);}}
-    res.status(500).json({message:"Unable to place order. Please check your order history before trying again."});
-  }
-});
+app.post("/orders",auth,async(req,res)=>{try{const {serviceId,link,quantity}=req.body,q=Number(quantity),s=await Service.findOne({_id:serviceId,active:true}),u=await User.findById(req.userId);if(!s)return res.status(404).json({message:"Service not found."});if(!link||!Number.isInteger(q)||q<s.min||q>s.max)return res.status(400).json({message:`Quantity must be between ${s.min} and ${s.max}.`});const amount=money(q*s.pricePer1000/1000);if(u.balance<amount)return res.status(400).json({message:"Insufficient wallet balance."});let providerOrderId;if(s.provider==="owlet"&&s.providerServiceId){const result=await owletRequest({action:"add",service:s.providerServiceId,link,quantity:q});if(!result.order)return res.status(502).json({message:"Owlet did not return an order ID.",provider:result});providerOrderId=String(result.order);}u.balance=money(u.balance-amount);await u.save();const order=await Order.create({user:u._id,service:s._id,serviceName:s.name,platform:s.platform,link,quantity:q,amount,status:"Pending",providerOrderId});await record(u,"order",-amount,`Order ${order._id}`);sendOrderPlacedEmail(u,order).catch(()=>{});res.status(201).json({message:"Order placed.",order,balance:u.balance});}catch(e){res.status(500).json({message:e.message||"Unable to place order."});}});
 app.get("/orders/owlet/:providerOrderId/status",auth,async(req,res)=>{try{const order=await Order.findOne({user:req.userId,providerOrderId:String(req.params.providerOrderId)});if(!order)return res.status(404).json({message:"Order not found."});const data=await owletRequest({action:"status",order:order.providerOrderId});const raw=String(data.status||"").toLowerCase();const mapped=raw.includes("complete")?"Completed":raw.includes("partial")?"Partial":raw.includes("cancel")?"Cancelled":raw.includes("fail")?"Failed":raw.includes("progress")||raw.includes("process")?"Processing":"Pending";if(order.status!==mapped){const previousStatus=order.status;order.status=mapped;await order.save();if(mapped==="Completed"&&previousStatus!=="Completed"){const orderUser=await User.findById(order.user);if(orderUser)sendOrderCompletedEmail(orderUser,order).catch(()=>{});}}res.json({provider:data,order});}catch(e){res.status(502).json({message:e.message||"Unable to retrieve order status."});}});
 app.get("/transactions",auth,async(req,res)=>res.json({transactions:await Transaction.find({user:req.userId}).sort({createdAt:-1}).limit(100)}));
 app.post("/payments/initialize",auth,async(req,res)=>{try{const amount=money(Number(req.body.amount));if(!Number.isFinite(amount)||amount<100)return res.status(400).json({message:"Minimum deposit is ₦100."});if(!process.env.PAYSTACK_SECRET_KEY)return res.status(503).json({message:"Paystack is not configured. Add PAYSTACK_SECRET_KEY to Backend/.env."});const user=await User.findById(req.userId);const reference=`PKB-${user._id}-${Date.now()}`;const r=await axios.post("https://api.paystack.co/transaction/initialize",{email:user.email,amount:Math.round(amount*100),reference,callback_url:(typeof req.body.callback_url==="string"&&/^https?:\/\//i.test(req.body.callback_url)?req.body.callback_url:process.env.PAYSTACK_CALLBACK_URL)||undefined,metadata:{userId:String(user._id)},channels:["card","bank","ussd","qr","mobile_money","bank_transfer"]},{headers:{Authorization:`Bearer ${process.env.PAYSTACK_SECRET_KEY}`}});res.json({authorization_url:r.data.data.authorization_url,reference});}catch(e){res.status(502).json({message:e.response?.data?.message||"Unable to initialize Paystack payment."});}});

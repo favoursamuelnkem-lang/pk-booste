@@ -1,0 +1,13 @@
+PK-BOOSTER ORDER SERVICE SELECTION FIX
+
+Changes in src/services.html:
+- Background catalogue polling no longer clears the selected service or resets the order form.
+- Catalogue re-rendering now preserves the selected provider service whenever it remains available.
+- Catalogue polling interval increased to 12 seconds and only re-renders when the service catalogue data actually changes.
+- Order summary now includes the admin selling price per 1,000.
+- Estimated total updates from the selected service's selling price and entered quantity (selling price x quantity / 1,000).
+- Selected service details show the same selling price used in the summary.
+
+No backend pricing or payment logic was changed in this update. The summary is an estimate; the backend remains authoritative when the order is submitted.
+
+Deploy the updated src/services.html to the frontend host. Backend deployment is not required for this frontend-only fix.
