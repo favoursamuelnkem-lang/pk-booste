@@ -1,0 +1,20 @@
+PK-BOOSTER ADMIN SERVICES FIX
+
+What changed:
+- Admin provider services now load saved Owlet service records from MongoDB immediately.
+- The Owlet catalog refresh runs in the backend background instead of blocking the admin page request.
+- Catalog refresh is protected against duplicate concurrent requests.
+- Large provider catalogs are written to MongoDB in batches of 300.
+- Owlet requests have a 15-second timeout.
+- Admin services navigation automatically starts loading the provider list once when opened.
+- The admin frontend has an 18-second request timeout and displays a clear message instead of waiting indefinitely.
+- Existing customer selling prices are preserved on provider catalog refresh; saving a price updates the saved service record.
+- TikTok provider services are excluded from the automatic non-TikTok catalog sync.
+
+Deployment:
+1. Deploy Backend/server.js to Render.
+2. Deploy the src folder to Vercel.
+3. Keep your existing Render environment variables, including MONGODB_URI, JWT_SECRET, OWLET_API_KEY, PAYSTACK_SECRET_KEY, RESEND_API_KEY and RESEND_FROM.
+4. Open PK-ADMIN > Services. Saved services should appear immediately; new provider services populate after the background Owlet refresh completes.
+
+Note: Live Owlet response and production deployment could not be tested from this environment. The backend and inline admin JavaScript were syntax-checked.

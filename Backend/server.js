@@ -17,7 +17,7 @@ const owletBase=String(process.env.OWLET_API_URL||"https://the-owlet.com/api/v2"
 async function owletRequest(payload){
  const key=String(process.env.OWLET_API_KEY||"").trim();
  if(!key) throw new Error("Owlet is not configured. Add OWLET_API_KEY to Backend/.env.");
- const response=await axios.post(owletBase,{key,...payload},{timeout:20000,headers:{"Content-Type":"application/json"}});
+ const response=await axios.post(owletBase,{key,...payload},{timeout:15000,headers:{"Content-Type":"application/json"}});
  const data=response.data;
  if(data?.error) throw new Error(typeof data.error==="string"?data.error:"Owlet API request failed.");
  return data;
@@ -62,6 +62,7 @@ app.get("/provider/owlet/services",auth,async(req,res)=>{try{const data=await ow
 
 
 const catalogCache={at:0,services:[]};
+let catalogSyncPromise=null;
 function inferOwletPlatform(item){
  const text=`${item.platform||""} ${item.category||""} ${item.name||""} ${item.description||""}`.toLowerCase();
  for(const [key,rx] of [["tiktok",/tik[\s-]?tok/],["instagram",/instagram/],["facebook",/facebook/],["youtube",/youtube/],["telegram",/telegram/],["whatsapp",/whatsapp/]])if(rx.test(text))return key[0].toUpperCase()+key.slice(1);
@@ -77,28 +78,30 @@ function inferOwletBoost(item){
  if(/share/.test(text))return "Shares";
  return "Other";
 }
-let catalogSyncPromise=null;
-async function syncOwletCatalog(force=false){
- if(!force&&Date.now()-catalogCache.at<5*60*1000&&catalogCache.services.length)return catalogCache.services;
+async function syncOwletCatalog(){
  if(catalogSyncPromise)return catalogSyncPromise;
+ if(Date.now()-catalogCache.at<5*60*1000&&catalogCache.services.length)return catalogCache.services;
  catalogSyncPromise=(async()=>{
   const data=await owletRequest({action:"services"});
   const raw=Array.isArray(data)?data:(Array.isArray(data.services)?data.services:[]);
   const normalized=raw.map(x=>{
    const id=Number(x.service||x.id),platform=inferOwletPlatform(x),boostType=inferOwletBoost(x);
    return {id,name:String(x.name||`Owlet service ${id}`),platform,boostType,rate:Number(x.rate||x.price||0),min:Number(x.min||1),max:Number(x.max||1000000)};
-  }).filter(x=>Number.isInteger(x.id)&&x.id>0&&x.platform&&x.platform.toLowerCase()!=="tiktok");
-  const ops=normalized.map(x=>({updateOne:{
-   filter:{provider:"owlet",providerServiceId:x.id},
-   update:{$set:{name:x.name,platform:x.platform,boostType:x.boostType,provider:"owlet",providerServiceId:x.id,providerPricePer1000:x.rate,min:x.min,max:x.max},
-    $setOnInsert:{pricePer1000:x.rate,active:true,description:"Automatically synced from Owlet"}},
-   upsert:true
-  }}));
-  if(ops.length)await Service.bulkWrite(ops,{ordered:false});
+  }).filter(x=>Number.isInteger(x.id)&&x.id>0&&x.platform&&x.platform!=="Tiktok");
+  // Batch writes so a large provider catalogue does not monopolize one database operation.
+  for(let i=0;i<normalized.length;i+=300){
+   const batch=normalized.slice(i,i+300);
+   const ops=batch.map(x=>({updateOne:{filter:{provider:"owlet",providerServiceId:x.id},update:{$set:{name:x.name,platform:x.platform,boostType:x.boostType,provider:"owlet",providerServiceId:x.id,providerPricePer1000:x.rate,min:x.min,max:x.max},$setOnInsert:{pricePer1000:x.rate,active:true,description:"Automatically synced from Owlet"}},upsert:true}}));
+   if(ops.length)await Service.bulkWrite(ops,{ordered:false});
+  }
   catalogCache.at=Date.now();catalogCache.services=normalized;
   return normalized;
- })();
- try{return await catalogSyncPromise;}finally{catalogSyncPromise=null;}
+ })().catch(error=>{console.error("Owlet catalog sync failed:",error.message);throw error;}).finally(()=>{catalogSyncPromise=null;});
+ return catalogSyncPromise;
+}
+function startOwletCatalogSync(){
+ if(catalogSyncPromise||Date.now()-catalogCache.at<5*60*1000)return;
+ syncOwletCatalog().catch(()=>{});
 }
 app.get("/services",async(req,res)=>{
  try{
@@ -155,36 +158,25 @@ app.get("/admin/orders",auth,admin,async(req,res)=>res.json({orders:await Order.
 app.patch("/admin/orders/:id",auth,admin,async(req,res)=>{const allowed=["Pending","Processing","Completed","Partial","Cancelled","Failed"];if(!allowed.includes(req.body.status))return res.status(400).json({message:"Invalid status."});const order=await Order.findById(req.params.id);if(!order)return res.status(404).json({message:"Order not found."});const previousStatus=order.status;order.status=req.body.status;await order.save();if(order.status==="Completed"&&previousStatus!=="Completed"){const orderUser=await User.findById(order.user);if(orderUser)sendOrderCompletedEmail(orderUser,order).catch(()=>{});}res.json({message:"Order updated.",order});});
 app.get("/admin/provider/owlet/services",auth,admin,async(req,res)=>{
  try{
-  // Serve MongoDB records immediately. Never hold the admin page open while Owlet responds.
-  const saved=await Service.find({provider:"owlet"}).sort({platform:1,name:1}).lean();
-  const services=saved.map(s=>({
-   providerServiceId:Number(s.providerServiceId),name:s.name,providerPricePer1000:Number(s.providerPricePer1000||0),
-   min:s.min,max:s.max,platform:s.platform,boostType:s.boostType||"Other",localId:String(s._id),
-   pricePer1000:Number(s.pricePer1000||0),active:!!s.active
-  }));
-  const refreshing=!catalogCache.at||Date.now()-catalogCache.at>5*60*1000;
+  // Respond from MongoDB immediately; never make the admin page wait for Owlet.
+  const saved=await Service.find({provider:"owlet",platform:{$ne:"TikTok"}}).sort({platform:1,name:1}).lean();
+  const services=saved.map(local=>({providerServiceId:Number(local.providerServiceId),name:local.name,providerPricePer1000:Number(local.providerPricePer1000||0),min:local.min,max:local.max,platform:local.platform,boostType:local.boostType||inferOwletBoost(local),localId:String(local._id),pricePer1000:Number(local.pricePer1000),active:!!local.active}));
+  const refreshing=!!catalogSyncPromise||(!catalogCache.at||Date.now()-catalogCache.at>5*60*1000);
   res.json({services,refreshing});
-  if(refreshing&&!catalogSyncPromise){
-   syncOwletCatalog(true).catch(e=>console.error("Background Owlet catalog refresh failed:",e.message));
-  }
- }catch(e){console.error("Admin provider services read failed:",e.message);res.status(500).json({message:"Unable to load saved provider services."});}
+  if(refreshing)startOwletCatalogSync();
+ }catch(e){console.error("Admin saved provider services failed:",e.message);res.status(500).json({message:"Unable to load saved services."});}
 });
-app.post("/admin/provider/owlet/services",auth,admin,async(req,res)=>{
- try{
-  const id=Number(req.body.providerServiceId),price=Number(req.body.pricePer1000);
-  if(!Number.isInteger(id)||id<=0||!Number.isFinite(price)||price<0)return res.status(400).json({message:"Enter a valid provider service ID and selling price."});
-  let item=catalogCache.services.find(x=>x.id===id);
-  if(!item){
-   const existing=await Service.findOne({provider:"owlet",providerServiceId:id});
-   if(existing)item={id,name:existing.name,platform:existing.platform,boostType:existing.boostType,rate:Number(existing.providerPricePer1000||0),min:existing.min,max:existing.max};
-  }
-  if(!item)return res.status(404).json({message:"Provider service is not loaded yet. Refresh the provider catalog and try again."});
-  const service=await Service.findOneAndUpdate({provider:"owlet",providerServiceId:id},
-   {$set:{provider:"owlet",providerServiceId:id,name:item.name,platform:item.platform,boostType:item.boostType,description:"Synced from Owlet",providerPricePer1000:item.rate,pricePer1000:price,min:item.min,max:item.max,active:req.body.active!==false}},
-   {new:true,upsert:true,runValidators:true,setDefaultsOnInsert:true});
-  res.json({message:"Service and selling price saved.",service});
- }catch(e){res.status(500).json({message:e.message||"Unable to save provider service."});}
-});
+app.post("/admin/provider/owlet/services",auth,admin,async(req,res)=>{try{
+ const id=Number(req.body.providerServiceId),price=Number(req.body.pricePer1000);
+ if(!Number.isInteger(id)||id<=0||!Number.isFinite(price)||price<0)return res.status(400).json({message:"Enter a valid provider service ID and selling price."});
+ let service=await Service.findOne({provider:"owlet",providerServiceId:id});
+ if(!service){
+  // A just-fetched service may be in the sync queue; don't block this request on another Owlet call.
+  return res.status(409).json({message:"Service catalog is still loading. Refresh the list and try again."});
+ }
+ service.pricePer1000=price;service.active=req.body.active!==false;await service.save();
+ res.json({message:"Provider service and selling price saved.",service});
+ }catch(e){res.status(500).json({message:e.message||"Unable to save provider service."});}});
 app.post("/admin/services",auth,admin,async(req,res)=>{try{const {name,platform,pricePer1000,min,max,description}=req.body;if(!name||!platform||Number(pricePer1000)<0)return res.status(400).json({message:"Name, platform, and valid price are required."});const service=await Service.create({name,platform,pricePer1000:Number(pricePer1000),min:Number(min)||10,max:Number(max)||100000,description});res.status(201).json({service});}catch(e){res.status(500).json({message:"Unable to create service."});}});
 app.patch("/admin/services/:id",auth,admin,async(req,res)=>{const service=await Service.findByIdAndUpdate(req.params.id,req.body,{new:true,runValidators:true});if(!service)return res.status(404).json({message:"Service not found."});res.json({service});});
 app.get("/admin/transactions",auth,admin,async(req,res)=>res.json({transactions:await Transaction.find().populate("user","fullName email").sort({createdAt:-1}).limit(300)}));
