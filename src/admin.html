@@ -3,7 +3,38 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PK-BOOSTER Admin</title><link rel="stylesheet" href="./output.css">
-<style>body{font-family:Inter,Arial,sans-serif;background:#fcf9fc;color:#20152b}.brand{background:#7c3aed}.panel{background:white;border:1px solid #eee7f5;border-radius:16px}.btn{background:#7c3aed;color:white;border-radius:10px;padding:10px 14px}.field{border:1px solid #ddd3e8;border-radius:9px;padding:10px;width:100%}.admin-page{display:none}.admin-page.active{display:block}.users-table{width:100%;table-layout:fixed}.users-table th,.users-table td{overflow-wrap:anywhere}.users-table td:last-child{min-width:220px}.admin-nav-link.active{background:#f3e8ff;color:#6d28d9;font-weight:700}@media(max-width:700px){#users table{min-width:0;width:100%}#users table thead{display:none}#users table tbody tr{display:block;border:1px solid #e9dff2;border-radius:12px;margin:0 0 12px;padding:8px;background:#fff}#users table tbody td{display:flex;justify-content:space-between;gap:12px;padding:7px 4px;border:0;text-align:right}#users table tbody td:before{content:attr(data-label);font-weight:600;text-align:left;color:#6b6074}#users table tbody td:last-child{min-width:0}.balance-actions{width:100%;min-width:0!important}.balance-actions .field{min-width:0}.balance-actions-buttons{display:grid;grid-template-columns:1fr 1fr}.balance-actions-buttons .btn{padding:8px 5px}}\n</style>
+<style>
+body{font-family:Inter,Arial,sans-serif;background:#fcf9fc;color:#20152b;max-width:100%;overflow-x:hidden}
+.brand{background:#7c3aed}.panel{background:white;border:1px solid #eee7f5;border-radius:16px;min-width:0}
+.btn{background:#7c3aed;color:white;border-radius:10px;padding:10px 14px;white-space:normal}
+.field{border:1px solid #ddd3e8;border-radius:9px;padding:10px;width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+.admin-page{display:none}.admin-page.active{display:block}.users-table{width:100%;table-layout:fixed}
+.users-table th,.users-table td{overflow-wrap:anywhere}.users-table td:last-child{min-width:220px}
+.admin-nav-link.active{background:#f3e8ff;color:#6d28d9;font-weight:700}
+@media(max-width:700px){
+  main,.panel,#providerServicesPanel,#providerServices{min-width:0;max-width:100%;}
+  #providerServices{overflow:visible!important;width:100%;}
+  #providerServices table{display:block;width:100%;min-width:0;border:0;}
+  #providerServices table thead{display:none;}
+  #providerServices table tbody{display:block;width:100%;}
+  #providerServices table tbody tr{display:flex;flex-direction:column;width:100%;box-sizing:border-box;border:1px solid #e9dff2;border-radius:13px;background:#fff;margin:0 0 14px;padding:10px;gap:0;}
+  #providerServices table tbody td{display:flex;flex-direction:column;align-items:stretch;width:100%;min-width:0;box-sizing:border-box;padding:8px 2px;border:0;border-bottom:1px solid #f0eaf5;overflow-wrap:anywhere;word-break:break-word;}
+  #providerServices table tbody td:last-child{border-bottom:0;}
+  #providerServices table tbody td:before{content:attr(data-label);display:block;font-size:11px;font-weight:700;letter-spacing:.02em;color:#74677f;margin:0 0 5px;text-align:left;}
+  #providerServices table tbody td>div{width:100%;min-width:0!important;display:flex;flex-direction:column;gap:8px;}
+  #providerServices table tbody td input{width:100%;min-width:0!important;}
+  #providerServices table tbody td button{width:100%;min-height:40px;}
+  #providerServices>div:last-child{width:100%;box-sizing:border-box;}
+  #providerServices>div:last-child button{padding:8px 10px;}
+  #users table{min-width:0;width:100%}#users table thead{display:none}
+  #users table tbody tr{display:block;border:1px solid #e9dff2;border-radius:12px;margin:0 0 12px;padding:8px;background:#fff}
+  #users table tbody td{display:flex;justify-content:space-between;gap:12px;padding:7px 4px;border:0;text-align:right;min-width:0}
+  #users table tbody td:before{content:attr(data-label);font-weight:600;text-align:left;color:#6b6074}
+  #users table tbody td:last-child{min-width:0}.balance-actions{width:100%;min-width:0!important}
+  .balance-actions .field{min-width:0}.balance-actions-buttons{display:grid;grid-template-columns:1fr 1fr}
+  .balance-actions-buttons .btn{padding:8px 5px}
+}
+</style>
     <link rel="stylesheet" href="./toast.css"><link rel="icon" type="image/png" href="assets/favicon.png"></head>
 <body>
 <header class="brand text-white px-5 py-4 flex flex-wrap items-center justify-between gap-3"><div class="flex items-center gap-3"><button id="menuToggle" aria-label="Open admin menu" class="rounded-lg bg-white/20 px-3 py-2 text-xl">☰</button><div class="font-bold text-xl">PK-BOOSTER <span class="text-sm font-normal">ADMIN</span></div></div><button id="logout" class="rounded-lg bg-white/20 px-4 py-2">Log out</button></header>
@@ -25,7 +56,7 @@ async function api(path,options={}){
  catch(error){if(error.name==="AbortError")throw Error("Server is taking too long. Please try again.");throw error;}
  finally{clearTimeout(timer);}
 }
-function table(rows,cols){return `<table class="min-w-full text-sm"><thead><tr>${cols.map(c=>`<th class="text-left p-2 bg-purple-50">${c}</th>`).join("")}</tr></thead><tbody>${rows.map(row=>`<tr class="border-t">${row.map(x=>`<td class="p-2 align-top">${x}</td>`).join("")}</tr>`).join("")}</tbody></table>`}
+function table(rows,cols){return `<table class="min-w-full text-sm"><thead><tr>${cols.map(c=>`<th class="text-left p-2 bg-purple-50">${c}</th>`).join("")}</tr></thead><tbody>${rows.map(row=>`<tr class="border-t">${row.map((x,i)=>`<td class="p-2 align-top" data-label="${String(cols[i]||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;")}">${x}</td>`).join("")}</tr>`).join("")}</tbody></table>`}
 async function loadAll(){try{const [o,u,s,t]=await Promise.all([api("/admin/overview"),api("/admin/users"),api("/services"),api("/admin/transactions")]);users=u.users;document.getElementById("stats").innerHTML=[["Users",o.users],["Orders",o.orders],["Services",o.services],["Pending orders",o.pending],["Completed orders",o.completed||0],["Order revenue",`₦${Number(o.revenue||0).toLocaleString()}`]].map(([a,b])=>`<div class="panel p-4"><p class="text-gray-500">${a}</p><strong class="text-2xl">${b}</strong></div>`).join("");renderUsers();document.getElementById("services").innerHTML=table(s.services.map(x=>[x.platform,x.name,`₦${x.pricePer1000}/1k`,x.active?"Active":"Disabled",`<button class="btn" onclick="toggleService('${x._id}',${!x.active})">${x.active?"Disable":"Enable"}</button>`]),["Platform","Service","Price","Status","Action"]);const ord=await api("/admin/orders");document.getElementById("orders").innerHTML=table(ord.orders.map(x=>[x.user?.email||"User",x.serviceName,x.quantity,`₦${x.amount}`,x.status,`<select class="field" onchange="setOrder('${x._id}',this.value)">${["Pending","Processing","Completed","Cancelled","Failed"].map(v=>`<option ${v===x.status?"selected":""}>${v}</option>`).join("")}</select>`]),["User","Service","Qty","Amount","Status","Update"]);document.getElementById("transactions").innerHTML=table(t.transactions.slice(0,100).map(x=>[x.user?.email||"",x.type,`₦${x.amount}`,`₦${x.balanceAfter}`,x.note||"",new Date(x.createdAt).toLocaleString()]),["User","Type","Amount","Balance","Note","Date"]);}catch(e){alert(e.message);if(!token)location.href="./login.html"}}
 function renderUsers(){const q=document.getElementById("search").value.toLowerCase();const labels=["Name","Email","Balance","Role","Adjust balance"];const rows=users.filter(u=>(u.fullName+" "+u.email).toLowerCase().includes(q)).map(u=>[u.fullName,u.email,`₦${Number(u.balance).toLocaleString()}`,u.role,`<div class="balance-actions space-y-2"><input id="amt-${u._id}" class="field" type="number" min="1" placeholder="Amount ₦"><input id="note-${u._id}" class="field" placeholder="Reason (optional)"><div class="balance-actions-buttons flex gap-2"><button class="btn" onclick="adjust('${u._id}','credit')">Deposit</button><button class="btn" onclick="adjust('${u._id}','debit')">Deduct</button></div></div>`]);document.getElementById("users").innerHTML=table(rows,labels).replace(/<table class="min-w-full text-sm">/,'<table class="users-table min-w-full text-sm">').replace(/<td class="p-2 align-top">/g,()=>'<td class="p-2 align-top">')}
 async function adjust(id,action){const amount=document.getElementById("amt-"+id).value,note=document.getElementById("note-"+id).value;if(!amount||Number(amount)<=0)return toastError("Enter a valid amount.");if(!confirm(`${action==="credit"?"Add":"Deduct"} ₦${amount} ${action==="credit"?"to":"from"} this user?`))return;try{await api(`/admin/users/${id}/adjust-balance`,{method:"POST",body:JSON.stringify({amount,action,note})});await loadAll();toastSuccess("Balance updated successfully.")}catch(e){toastError(e.message)}}
