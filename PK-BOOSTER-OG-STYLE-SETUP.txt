@@ -1,0 +1,44 @@
+PK-BOOSTER — OG-BOOST FEATURE / ADMIN MERGE
+
+WHAT THIS UPDATE DOES
+- Replaces the limited PK admin dashboard with the fuller OG-BOOST admin dashboard structure:
+  Dashboard, Users, Orders, Services, Prices, Transactions, Deposits, Withdrawals,
+  Revenue, Coupons, Announcements, Provider, Activity, Settings and Security.
+- Adds the OG-style separate admin login using ADMIN_EMAIL and ADMIN_PASSWORD.
+- Brings over OG backend models and workflows for service pricing, order management,
+  transaction management, admin logs, coupons, announcements, withdrawals and support.
+- Uses PK-BOOSTER branding and purple styling.
+- Uses PK-BOOSTER's existing Resend environment variables for welcome, login and order emails.
+- Keeps the existing Paystack deposit endpoints and callback flow.
+- Keeps the selected TikTok provider IDs: 8288, 23425, 21632, 23148 and 20884.
+- Uses Owlet service caching and a paginated admin catalogue view to reduce browser rendering load.
+- Uses the OG-style New Order form on both order.html and services.html.
+
+RENDER ENVIRONMENT VARIABLES
+Set/confirm these on the PK-BOOSTER Render backend:
+MONGODB_URI
+JWT_SECRET
+ADMIN_EMAIL
+ADMIN_PASSWORD
+OWLET_API_URL
+OWLET_API_KEY
+RESEND_API_KEY
+RESEND_FROM
+PAYSTACK_SECRET_KEY
+PAYSTACK_CALLBACK_URL
+FRONTEND_URL=https://pk-booster.com
+
+ADMIN LOGIN
+Open https://pk-booster.com/admin-login.html
+Use ADMIN_EMAIL and ADMIN_PASSWORD from Render.
+
+DEPLOYMENT
+1. Deploy the Backend folder to the existing Render service.
+2. Deploy the src folder to Vercel.
+3. Do not upload .env files or API keys to GitHub.
+4. Existing user login tokens using the old {id} JWT payload remain accepted.
+5. Admin now uses a separate token key and the admin-login.html page.
+
+IMPORTANT DATA NOTE
+The update retains the existing MongoDB database and collection names. Legacy PK orders/transactions are handled using both old and new reference fields where possible. New orders use the OG-style userId/serviceId fields.
+The Owlet catalogue and actual order submission must be tested against the live provider after deployment. This archive has been syntax-checked, not live-tested against your Render, MongoDB, Paystack, Resend or Owlet accounts.

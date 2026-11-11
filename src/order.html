@@ -1,568 +1,1585 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Order | PK-BOOSTER</title>
+  <meta charset="UTF-8">
 
-    <link href="./output.css" rel="stylesheet">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <title>New Order - PK-BOOSTER</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./toast.css"><link rel="icon" type="image/png" href="assets/favicon.png"></head>
+  <link
+    rel="stylesheet"
+    href="./og-ui.css"
+  >
 
-<body class="min-h-screen bg-[#FCF9FC] font-sans text-[#19131F]">
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
 
-    <header class="sticky top-0 z-50 border-b border-[#EEE3EF] bg-white">
 
-        <div class="mx-auto flex min-h-[64px] max-w-[1140px] items-center justify-between gap-4 px-4 sm:px-6">
 
-            <div class="flex items-center gap-5 lg:gap-7">
+  <link rel="stylesheet" href="./toast.css">
 
-                <a href="./order.html" class="flex shrink-0 items-center gap-2">
+</head>
 
-                    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#7C3AED]">
 
-                        <span class="text-lg font-black text-white">PK</span>
+<body class="bg-[#f6f8fa] text-gray-800">
 
-                    </div>
 
-                    <div class="hidden flex-col leading-none sm:flex">
+  <aside
+    class="hidden lg:flex fixed left-0 top-0 bottom-0 w-[255px] bg-white border-r border-gray-100 flex-col z-50"
+  >
 
-                        <span class="text-lg font-extrabold tracking-tight">
-                            PK-BOOSTER
-                        </span>
+    <div class="px-7 pt-8 pb-7">
 
-                        <span class="mt-1 text-[9px] font-bold tracking-[1.5px] text-[#7C3AED]">
-                            SOCIAL GROWTH
-                        </span>
+      <a
+        href="account.html"
+        class="flex items-center gap-3"
+      >
 
-                    </div>
+        <div
+          class="w-11 h-11 rounded-2xl bg-[#7C3AED] flex items-center justify-center"
+        >
 
-                </a>
-
-                <nav class="hidden items-center gap-1 md:flex">
-
-                    <a
-                        href="./order.html"
-                        class="rounded-xl bg-[#F8EFFF] px-4 py-2.5 text-sm font-semibold text-[#7C3AED]"
-                    >
-                        Order
-                    </a>
-
-                    <a
-                        href="./my-orders.html"
-                        class="rounded-xl px-4 py-2.5 text-sm font-semibold text-[#62586C] transition hover:bg-[#FAF5FB] hover:text-[#7C3AED]"
-                    >
-                        My orders
-                    </a>
-
-                    <a
-                        href="./wallet.html"
-                        class="rounded-xl px-4 py-2.5 text-sm font-semibold text-[#62586C] transition hover:bg-[#FAF5FB] hover:text-[#7C3AED]"
-                    >
-                        Wallet
-                    </a>
-
-                    <div class="relative">
-
-                        <button
-                            id="moreButton"
-                            type="button"
-                            class="flex items-center gap-1 rounded-xl px-4 py-2.5 text-sm font-semibold text-[#62586C] transition hover:bg-[#FAF5FB]"
-                        >
-
-                            More
-
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path d="m6 9 6 6 6-6"/>
-                            </svg>
-
-                        </button>
-
-                        <div
-                            id="moreMenu"
-                            class="absolute left-0 top-full mt-2 hidden w-48 overflow-hidden rounded-xl border border-[#EEE3EF] bg-white py-2 shadow-lg"
-                        >
-
-                            <a href="./profile.html" class="block px-4 py-3 text-sm hover:bg-[#FAF5FB]">
-                                My profile
-                            </a>
-
-                            <a href="./support.html" class="block px-4 py-3 text-sm hover:bg-[#FAF5FB]">
-                                Support
-                            </a>
-
-                            <button id="logoutButton" type="button" class="w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50">
-                                Log out
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </nav>
-
-            </div>
-
-            <div class="flex shrink-0 items-center gap-2">
-
-                <a
-                    href="./wallet.html"
-                    class="flex items-center gap-2 rounded-full border border-[#E8DCEC] py-1 pl-3 pr-1"
-                >
-
-                    <span id="walletBalance" class="text-xs font-bold sm:text-sm">
-                        ₦0.00
-                    </span>
-
-                    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-[#7C3AED] text-xl font-medium text-white transition hover:bg-[#6D28D9]">
-                        +
-                    </span>
-
-                </a>
-
-                <button
-                    type="button"
-                    class="flex items-center gap-1.5 rounded-xl border border-[#E8DCEC] px-2.5 py-2 text-xs font-semibold sm:px-3 sm:text-sm"
-                >
-
-                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                        <circle cx="12" cy="12" r="9"/>
-                        <path d="M3 12h18"/>
-                        <path d="M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9"/>
-                        <path d="M12 3c-2.5 2.5-3.5 5.5-3.5 9s1 6.5 3.5 9"/>
-                    </svg>
-
-                    EN
-
-                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path d="m6 9 6 6 6-6"/>
-                    </svg>
-
-                </button>
-
-            </div>
+          <span class="text-white font-black text-lg">
+            OG
+          </span>
 
         </div>
 
-        <nav class="flex items-center justify-center gap-1 border-t border-[#F3EDF5] px-3 py-2 md:hidden">
+        <div>
 
-            <a href="./order.html" class="rounded-lg bg-[#F8EFFF] px-3 py-2 text-xs font-semibold text-[#7C3AED]">
-                Order
-            </a>
+          <h1
+            class="font-black text-xl tracking-tight text-[#7C3AED]"
+          >
+            PK-<span class="text-purple-500">Boost</span>
+          </h1>
 
-            <a href="./my-orders.html" class="rounded-lg px-3 py-2 text-xs font-semibold text-[#62586C]">
-                My orders
-            </a>
-
-            <a href="./wallet.html" class="rounded-lg px-3 py-2 text-xs font-semibold text-[#62586C]">
-                Wallet
-            </a>
-
-            <button id="mobileMoreButton" type="button" class="rounded-lg px-3 py-2 text-xs font-semibold text-[#62586C]">
-                More
-            </button>
-
-        </nav>
-
-        <div id="mobileMoreMenu" class="hidden border-t border-[#EEE3EF] bg-white px-5 py-3 md:hidden">
-
-            <div class="mx-auto flex max-w-[1140px] flex-wrap gap-4">
-
-                <a href="./profile.html" class="text-sm font-medium text-[#62586C]">
-                    My profile
-                </a>
-
-                <a href="./support.html" class="text-sm font-medium text-[#62586C]">
-                    Support
-                </a>
-
-                <button id="mobileLogoutButton" type="button" class="text-sm font-medium text-red-600">
-                    Log out
-                </button>
-
-            </div>
+          <p
+            class="text-[10px] uppercase tracking-[0.18em] text-gray-400 font-semibold"
+          >
+            Social Growth
+          </p>
 
         </div>
+
+      </a>
+
+    </div>
+
+
+    <nav class="px-4 space-y-1.5">
+
+      <a
+        href="account.html"
+        class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-[#7C3AED] transition"
+      >
+
+        <span class="text-lg">⌂</span>
+
+        Dashboard
+
+      </a>
+
+
+      <a
+        href="services.html"
+        class="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-[#7C3AED] text-white font-semibold"
+      >
+
+        <span class="text-lg">＋</span>
+
+        New Order
+
+      </a>
+
+
+      <a
+        href="services.html"
+        class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-[#7C3AED] transition"
+      >
+
+        <span class="text-lg">✦</span>
+
+        Services
+
+      </a>
+
+
+      <a
+        href="my-orders.html"
+        class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-[#7C3AED] transition"
+      >
+
+        <span class="text-lg">▤</span>
+
+        My Orders
+
+      </a>
+
+
+      <a
+        href="wallet.html"
+        class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-[#7C3AED] transition"
+      >
+
+        <span class="text-lg">◉</span>
+
+        Wallet
+
+      </a>
+
+
+      <a
+        href="support.html"
+        class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-[#7C3AED] transition"
+      >
+
+        <span class="text-lg">?</span>
+
+        Support
+
+      </a>
+
+    </nav>
+
+
+    <div
+      class="mt-auto p-5 border-t border-gray-100"
+    >
+
+      <div class="flex items-center gap-3 mb-4">
+
+        <div
+          class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold"
+        >
+          F
+        </div>
+
+
+        <div class="min-w-0">
+
+          <p class="font-semibold truncate">
+            Favour
+          </p>
+
+          <p class="text-xs text-gray-400 truncate">
+            Customer
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <button
+        id="logoutBtn"
+        class="w-full py-3 rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 transition font-medium"
+      >
+        Log out
+      </button>
+
+    </div>
+
+  </aside>
+
+
+
+  <div class="lg:ml-[255px] min-h-screen">
+
+
+    <header
+      class="lg:hidden bg-white border-b border-gray-100 px-5 py-4 sticky top-0 z-40"
+    >
+
+      <div class="flex items-center justify-between">
+
+        <a
+          href="account.html"
+          class="flex items-center gap-2.5"
+        >
+
+          <div
+            class="w-9 h-9 rounded-xl bg-[#7C3AED] flex items-center justify-center"
+          >
+
+            <span class="text-white font-black text-sm">
+              OG
+            </span>
+
+          </div>
+
+
+          <h1
+            class="font-black text-lg text-[#7C3AED]"
+          >
+
+            PK-<span class="text-purple-500">Boost</span>
+
+          </h1>
+
+        </a>
+
+
+        <div
+          class="w-9 h-9 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold"
+        >
+          F
+        </div>
+
+      </div>
 
     </header>
 
-    <main class="mx-auto min-h-[calc(100vh-64px)] max-w-[1140px] px-5 pb-16 pt-7 sm:px-8 sm:pt-10">
 
-        <section class="mx-auto w-full max-w-[610px]">
 
-            <div class="mb-3">
+    <main
+      class="max-w-[1100px] mx-auto px-5 sm:px-7 lg:px-10 py-7 lg:py-10 pb-28 lg:pb-10"
+    >
 
-                <p class="text-xs font-semibold text-[#82788A] sm:text-sm">
-                    Step 1 of 4
-                </p>
 
-                <div class="mt-2.5 grid grid-cols-4 gap-1">
+      <section>
 
-                    <div class="h-[6px] rounded-full bg-[#7C3AED]"></div>
+        <p
+          class="text-purple-500 text-sm font-bold"
+        >
+          BOOST YOUR SOCIALS
+        </p>
 
-                    <div class="h-[6px] rounded-full bg-[#E4D9E8]"></div>
 
-                    <div class="h-[6px] rounded-full bg-[#E4D9E8]"></div>
+        <h2
+          class="text-3xl sm:text-4xl font-black text-gray-900 mt-1"
+        >
+          New Order
+        </h2>
 
-                    <div class="h-[6px] rounded-full bg-[#E4D9E8]"></div>
 
-                </div>
+        <p
+          class="text-gray-400 text-sm mt-2"
+        >
+          Choose a service, enter your link and place your boost.
+        </p>
 
-            </div>
+      </section>
 
-            <h1 class="mt-4 text-[26px] font-extrabold leading-tight tracking-tight sm:text-[30px]">
 
-                What do you want to grow?
 
-            </h1>
+      <section
+        class="mt-7 bg-[#7C3AED] rounded-[24px] p-5 sm:p-6 text-white relative overflow-hidden"
+      >
 
-            <p class="mt-2 text-sm leading-6 text-[#766B80] sm:hidden">
-                Choose a platform to continue your order.
+        <div
+          class="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-white/5"
+        ></div>
+
+
+        <div
+          class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        >
+
+          <div>
+
+            <p
+              class="text-white/60 text-xs font-medium"
+            >
+              Available Balance
             </p>
 
-            <div id="platformGrid" class="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
 
-                <button
-                    type="button"
-                    data-platform="TikTok"
-                    class="platform-card group flex min-h-[108px] flex-col items-center justify-center rounded-[19px] border border-[#EEE3EF] bg-white px-2 py-4 transition hover:border-[#7C3AED] hover:shadow-sm"
-                >
+         <h3
+  id="walletBalance"
+  class="text-2xl sm:text-3xl font-black mt-1"
+>
+  ₦0
+</h3>
 
-                    <span class="flex h-11 w-11 items-center justify-center rounded-[14px] bg-black text-white">
+          </div>
 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M19.6 7.2a6.9 6.9 0 0 1-4.2-1.5v8.1a6.2 6.2 0 1 1-6.2-6.2c.4 0 .8 0 1.2.1v3.4a2.8 2.8 0 1 0 1.6 2.5V2.5h3.4c.2 2 1.7 3.5 3.7 3.7v3.4a7.8 7.8 0 0 1-3.5-.9z"/>
-                        </svg>
 
-                    </span>
+          <a
+            href="wallet.html"
+            class="inline-flex items-center justify-center bg-white text-[#7C3AED] px-5 py-3 rounded-xl font-bold text-sm"
+          >
+            Fund Wallet
+          </a>
 
-                    <span class="mt-2 text-sm font-bold">
-                        TikTok
-                    </span>
+        </div>
 
-                </button>
+      </section>
 
-                <button
-                    type="button"
-                    data-platform="Instagram"
-                    class="platform-card group flex min-h-[108px] flex-col items-center justify-center rounded-[19px] border border-[#EEE3EF] bg-white px-2 py-4 transition hover:border-[#7C3AED] hover:shadow-sm"
-                >
 
-                    <span class="flex h-11 w-11 items-center justify-center rounded-[14px] bg-[#E63865] text-white">
 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="3" width="18" height="18" rx="5"/>
-                            <circle cx="12" cy="12" r="4"/>
-                            <circle cx="17.5" cy="6.5" r="1"/>
-                        </svg>
+      <section
+        class="grid lg:grid-cols-[1fr_360px] gap-6 mt-7"
+      >
 
-                    </span>
 
-                    <span class="mt-2 text-sm font-bold">
-                        Instagram
-                    </span>
+        <div
+          class="bg-white border border-gray-100 rounded-[26px] p-5 sm:p-7"
+        >
 
-                </button>
+          <div class="mb-7">
 
-                <button
-                    type="button"
-                    data-platform="Facebook"
-                    class="platform-card group flex min-h-[108px] flex-col items-center justify-center rounded-[19px] border border-[#EEE3EF] bg-white px-2 py-4 transition hover:border-[#7C3AED] hover:shadow-sm"
-                >
+            <h3
+              class="text-xl font-black"
+            >
+              Create Boost Order
+            </h3>
 
-                    <span class="flex h-11 w-11 items-center justify-center rounded-[14px] bg-[#0866FF] text-white">
 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M24 12a12 12 0 1 0-13.875 11.86v-8.39H7.08V12h3.045V9.35c0-3.005 1.79-4.665 4.525-4.665 1.31 0 2.68.235 2.68.235v2.945h-1.51c-1.49 0-1.955.925-1.955 1.875V12h3.325l-.53 3.47h-2.795v8.39A12.002 12.002 0 0 0 24 12z"/>
-                        </svg>
+            <p
+              class="text-sm text-gray-400 mt-1"
+            >
+              Select what you want to boost.
+            </p>
 
-                    </span>
+          </div>
 
-                    <span class="mt-2 text-sm font-bold">
-                        Facebook
-                    </span>
 
-                </button>
 
-                <button
-                    type="button"
-                    data-platform="Telegram"
-                    class="platform-card group flex min-h-[108px] flex-col items-center justify-center rounded-[19px] border border-[#EEE3EF] bg-white px-2 py-4 transition hover:border-[#7C3AED] hover:shadow-sm"
-                >
+          <div>
 
-                    <span class="flex h-11 w-11 items-center justify-center rounded-[14px] bg-[#27A8E8] text-white">
+            <label
+              class="block text-sm font-bold mb-2"
+            >
+              Social Platform
+            </label>
 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M22 3.5 18.5 20c-.3 1.2-1 1.5-2 1l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.2L18 7.5c.4-.3-.1-.5-.5-.2L6 14.6l-5-1.6c-1.1-.4-1.1-1.1.2-1.6L20.5 3c.9-.4 1.7.2 1.5.5Z"/>
-                        </svg>
 
-                    </span>
+            <select
+              id="platform"
+              class="w-full px-4 py-3.5 rounded-xl border border-gray-200 bg-white outline-none focus:border-[#7C3AED] focus:ring-4 focus:ring-[#7C3AED]/5 transition"
+            >
 
-                    <span class="mt-2 text-sm font-bold">
-                        Telegram
-                    </span>
+              <option value="">
+                Select platform
+              </option>
 
-                </button>
+              <option value="TikTok">
+                TikTok
+              </option>
 
-                <button
-                    type="button"
-                    data-platform="YouTube"
-                    class="platform-card group flex min-h-[108px] flex-col items-center justify-center rounded-[19px] border border-[#EEE3EF] bg-white px-2 py-4 transition hover:border-[#7C3AED] hover:shadow-sm"
-                >
+              <option value="Instagram">
+                Instagram
+              </option>
 
-                    <span class="flex h-11 w-11 items-center justify-center rounded-[14px] bg-[#FF0000] text-white">
+              <option value="YouTube">
+                YouTube
+              </option>
 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z"/>
-                        </svg>
+              <option value="Facebook">
+                Facebook
+              </option>
 
-                    </span>
+              <option value="X">
+                X / Twitter
+              </option>
 
-                    <span class="mt-2 text-sm font-bold">
-                        YouTube
-                    </span>
+            </select>
 
-                </button>
+          </div>
 
-                <button
-                    type="button"
-                    data-platform="WhatsApp"
-                    class="platform-card group flex min-h-[108px] flex-col items-center justify-center rounded-[19px] border border-[#EEE3EF] bg-white px-2 py-4 transition hover:border-[#7C3AED] hover:shadow-sm"
-                >
 
-                    <span class="flex h-11 w-11 items-center justify-center rounded-[14px] bg-[#20D366] text-white">
 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                            <path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7a8.5 8.5 0 1 1 16.3-3.8Z"/>
-                            <path d="M8.5 8.5c.3-.5.6-.5.9-.5h.4c.2 0 .4 0 .5.4l.8 1.8c.1.3.1.5-.1.7l-.6.7c-.2.2-.2.4 0 .7.5.8 1.2 1.5 2 2 .3.2.5.2.7 0l.8-1c.2-.2.4-.2.7-.1l1.7.8c.3.1.4.3.4.5 0 .3-.1 1.1-.7 1.6-.6.6-1.4.8-2.3.6-1-.2-2.4-.7-4-2.1-1.8-1.6-2.8-3.5-3.1-4.4-.3-.9 0-1.7.3-2.2Z"/>
-                        </svg>
+          <div class="mt-5">
 
-                    </span>
+            <label
+              for="boostType"
+              class="block text-sm font-bold mb-2"
+            >
+              Boost Type
+            </label>
 
-                    <span class="mt-2 text-sm font-bold">
-                        WhatsApp
-                    </span>
+            <select
+              id="boostType"
+              class="w-full px-4 py-3.5 rounded-xl border border-gray-200 bg-white outline-none focus:border-[#7C3AED] focus:ring-4 focus:ring-[#7C3AED]/5 transition"
+            >
+              <option value="">All service types</option>
+              <option value="followers">Followers</option>
+              <option value="likes">Likes</option>
+              <option value="views">Views</option>
+              <option value="comments">Comments</option>
+              <option value="shares">Shares</option>
+              <option value="subscribers">Subscribers</option>
+              <option value="members">Members</option>
+            </select>
 
-                </button>
+          </div>
 
-                <button
-                    type="button"
-                    data-platform="Others"
-                    class="platform-card group flex min-h-[108px] flex-col items-center justify-center rounded-[19px] border border-[#EEE3EF] bg-white px-2 py-4 transition hover:border-[#7C3AED] hover:shadow-sm"
-                >
 
-                    <span class="flex h-11 w-11 items-center justify-center rounded-[14px] border-2 border-[#19131F] text-[#19131F]">
+          <div class="mt-5">
 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 24 24">
-                            <circle cx="5" cy="12" r="2"/>
-                            <circle cx="12" cy="12" r="2"/>
-                            <circle cx="19" cy="12" r="2"/>
-                        </svg>
+            <label
+              class="block text-sm font-bold mb-2"
+            >
+              Service
+            </label>
 
-                    </span>
 
-                    <span class="mt-2 text-sm font-bold">
-                        Others
-                    </span>
+            <select
+              id="service"
+              class="w-full px-4 py-3.5 rounded-xl border border-gray-200 bg-white outline-none focus:border-[#7C3AED] focus:ring-4 focus:ring-[#7C3AED]/5 transition"
+            >
 
-                </button>
+              <option value="">
+                Select a platform first
+              </option>
 
-                <button
-                    type="button"
-                    data-platform="Numbers & emails"
-                    class="platform-card group relative flex min-h-[108px] flex-col items-center justify-center rounded-[19px] border border-[#EEE3EF] bg-white px-2 py-4 transition hover:border-[#7C3AED] hover:shadow-sm"
-                >
+            </select>
 
-                    <span class="absolute right-1.5 top-1.5 rounded-full bg-[#7C3AED] px-2 py-0.5 text-[9px] font-bold text-white">
-                        NEW
-                    </span>
+          </div>
 
-                    <span class="flex h-11 w-11 items-center justify-center rounded-[14px] bg-[#FCEEFF] text-[#7C3AED]">
 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                            <path d="M12 3 4.5 6v5.5c0 4.8 3.2 7.9 7.5 9.5 4.3-1.6 7.5-4.7 7.5-9.5V6L12 3Z"/>
-                            <path d="m9 12 2 2 4-4"/>
-                        </svg>
 
-                    </span>
+          <div class="mt-5">
 
-                    <span class="mt-2 text-center text-sm font-bold leading-5">
-                        Numbers &<br>emails
-                    </span>
+            <label
+              class="block text-sm font-bold mb-2"
+            >
+              Link
+            </label>
 
-                </button>
+
+            <input
+              id="targetLink"
+              type="url"
+              placeholder="https://..."
+              class="w-full px-4 py-3.5 rounded-xl border border-gray-200 outline-none focus:border-[#7C3AED] focus:ring-4 focus:ring-[#7C3AED]/5 transition"
+            >
+
+
+            <p
+              class="text-xs text-gray-400 mt-2"
+            >
+              Enter the link to the profile, post or video you want to boost.
+            </p>
+
+          </div>
+
+
+
+          <div class="mt-5">
+
+            <label
+              class="block text-sm font-bold mb-2"
+            >
+              Quantity
+            </label>
+
+
+            <input
+              id="quantity"
+              type="number"
+              min="50"
+              value="1000"
+              placeholder="Enter quantity"
+              class="w-full px-4 py-3.5 rounded-xl border border-gray-200 outline-none focus:border-[#7C3AED] focus:ring-4 focus:ring-[#7C3AED]/5 transition"
+            >
+
+
+            <div
+              class="flex flex-wrap gap-2 mt-3"
+            >
+
+              <button
+                type="button"
+                class="quantityBtn px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-xs font-bold"
+                data-quantity="1000"
+              >
+                1,000
+              </button>
+
+
+              <button
+                type="button"
+                class="quantityBtn px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-xs font-bold"
+                data-quantity="2500"
+              >
+                2,500
+              </button>
+
+
+              <button
+                type="button"
+                class="quantityBtn px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-xs font-bold"
+                data-quantity="5000"
+              >
+                5,000
+              </button>
+
+
+              <button
+                type="button"
+                class="quantityBtn px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-xs font-bold"
+                data-quantity="10000"
+              >
+                10,000
+              </button>
 
             </div>
 
-            <div id="selectionMessage" class="mt-5 hidden scroll-mt-24 rounded-xl border border-[#DDD0E8] bg-white p-4">
+          </div>
 
-                <div class="flex items-center justify-between gap-3">
 
-                    <div>
 
-                        <p class="text-xs font-medium text-[#82788A]">
-                            Selected platform
-                        </p>
+          <button
+            id="placeOrderBtn"
+            type="button"
+            class="w-full mt-7 py-4 rounded-xl bg-purple-500 hover:bg-purple-600 text-white font-black transition shadow-lg shadow-purple-500/10"
+          >
 
-                        <p id="selectedPlatform" class="mt-1 text-sm font-bold">
-                            TikTok
-                        </p>
+            Place Order
 
-                    </div>
+          </button>
 
-                    <button
-                        id="continueButton"
-                        type="button"
-                        class="rounded-xl bg-[#7C3AED] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#6D28D9]"
-                    >
-                        Continue
-                    </button>
 
-                </div>
+          <p
+            id="formMessage"
+            class="hidden text-center text-sm mt-4"
+          ></p>
+
+        </div>
+
+
+
+        <aside
+          class="bg-white border border-gray-100 rounded-[26px] p-5 sm:p-6 h-fit lg:sticky lg:top-7"
+        >
+
+          <h3
+            class="text-lg font-black"
+          >
+            Order Summary
+          </h3>
+
+
+          <p
+            class="text-xs text-gray-400 mt-1"
+          >
+            Review your order before submitting.
+          </p>
+
+
+          <div
+            class="mt-6 space-y-4"
+          >
+
+            <div
+              class="flex justify-between gap-4"
+            >
+
+              <span class="text-sm text-gray-400">
+                Platform
+              </span>
+
+              <span
+                id="summaryPlatform"
+                class="text-sm font-bold text-right"
+              >
+                —
+              </span>
 
             </div>
 
-            <p id="pageMessage" class="mt-4 hidden rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600"></p>
 
-        </section>
+            <div
+              class="flex justify-between gap-4"
+            >
+
+              <span class="text-sm text-gray-400">
+                Service
+              </span>
+
+              <span
+                id="summaryService"
+                class="text-sm font-bold text-right max-w-[190px]"
+              >
+                —
+              </span>
+
+            </div>
+
+
+            <div
+              class="flex justify-between gap-4"
+            >
+
+              <span class="text-sm text-gray-400">
+                Quantity
+              </span>
+
+              <span
+                id="summaryQuantity"
+                class="text-sm font-bold"
+              >
+                1,000
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div
+            class="border-t border-gray-100 mt-6 pt-6"
+          >
+
+            <div
+              class="flex items-end justify-between"
+            >
+
+              <div>
+
+                <p class="text-xs text-gray-400">
+                  Total
+                </p>
+
+                <p
+                  id="summaryPrice"
+                  class="text-3xl font-black text-[#7C3AED] mt-1"
+                >
+                  ₦0
+                </p>
+
+              </div>
+
+
+              <span
+                class="text-xs text-gray-400"
+              >
+                NGN
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div
+            class="mt-6 bg-purple-50 rounded-2xl p-4"
+          >
+
+            <p
+              class="text-xs font-bold text-purple-600"
+            >
+              Important
+            </p>
+
+
+            <p
+              class="text-xs text-purple-700/70 leading-5 mt-1"
+            >
+              Make sure your social media link is correct before
+              placing your order.
+            </p>
+
+          </div>
+
+        </aside>
+
+      </section>
+
+
+
+      <section class="mt-10">
+
+        <div>
+
+          <p
+            class="text-purple-500 text-xs font-bold uppercase tracking-wider"
+          >
+            Simple Process
+          </p>
+
+
+          <h2
+            class="text-2xl font-black mt-2"
+          >
+            How it works
+          </h2>
+
+        </div>
+
+
+        <div
+          class="grid sm:grid-cols-3 gap-4 mt-5"
+        >
+
+          <div
+            class="bg-white border border-gray-100 rounded-2xl p-5"
+          >
+
+            <div
+              class="w-10 h-10 rounded-xl bg-[#7C3AED]/10 text-[#7C3AED] flex items-center justify-center font-black"
+            >
+              1
+            </div>
+
+
+            <h3
+              class="font-bold mt-4"
+            >
+              Choose a service
+            </h3>
+
+
+            <p
+              class="text-xs text-gray-400 leading-5 mt-1"
+            >
+              Select the social platform and boost type you want.
+            </p>
+
+          </div>
+
+
+          <div
+            class="bg-white border border-gray-100 rounded-2xl p-5"
+          >
+
+            <div
+              class="w-10 h-10 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center font-black"
+            >
+              2
+            </div>
+
+
+            <h3
+              class="font-bold mt-4"
+            >
+              Enter your details
+            </h3>
+
+
+            <p
+              class="text-xs text-gray-400 leading-5 mt-1"
+            >
+              Add your social media link and choose the quantity.
+            </p>
+
+          </div>
+
+
+          <div
+            class="bg-white border border-gray-100 rounded-2xl p-5"
+          >
+
+            <div
+              class="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center font-black"
+            >
+              3
+            </div>
+
+
+            <h3
+              class="font-bold mt-4"
+            >
+              Place your order
+            </h3>
+
+
+            <p
+              class="text-xs text-gray-400 leading-5 mt-1"
+            >
+              Confirm the order and track its progress from My Orders.
+            </p>
+
+          </div>
+
+        </div>
+
+      </section>
+
 
     </main>
 
-    <script>
-        const platformCards = document.querySelectorAll(".platform-card");
-        const selectionMessage = document.getElementById("selectionMessage");
-        const selectedPlatformText = document.getElementById("selectedPlatform");
-        const continueButton = document.getElementById("continueButton");
-        const pageMessage = document.getElementById("pageMessage");
 
-        let selectedPlatform = "";
 
-        function formatNaira(amount) {
-            return new Intl.NumberFormat("en-NG", {
-                style: "currency",
-                currency: "NGN",
+    <nav
+      class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-50 px-2 py-2"
+    >
+
+      <div
+        class="grid grid-cols-5 max-w-lg mx-auto"
+      >
+
+        <a
+          href="account.html"
+          class="flex flex-col items-center gap-1 py-2 text-gray-400"
+        >
+
+          <span class="text-lg">
+            ⌂
+          </span>
+
+          <span class="text-[10px]">
+            Home
+          </span>
+
+        </a>
+
+
+        <a
+          href="services.html"
+          class="flex flex-col items-center gap-1 py-2 text-gray-400"
+        >
+
+          <span class="text-lg">
+            ✦
+          </span>
+
+          <span class="text-[10px]">
+            Services
+          </span>
+
+        </a>
+
+
+        <a
+          href="services.html"
+          class="relative flex flex-col items-center"
+        >
+
+          <span
+            class="-mt-7 w-14 h-14 rounded-full bg-purple-500 text-white flex items-center justify-center text-2xl shadow-lg border-4 border-[#f6f8fa]"
+          >
+            +
+          </span>
+
+          <span
+            class="text-[10px] font-bold text-purple-500 mt-1"
+          >
+            Boost
+          </span>
+
+        </a>
+
+
+        <a
+          href="my-orders.html"
+          class="flex flex-col items-center gap-1 py-2 text-gray-400"
+        >
+
+          <span class="text-lg">
+            ▤
+          </span>
+
+          <span class="text-[10px]">
+            Orders
+          </span>
+
+        </a>
+
+
+        <a
+          href="wallet.html"
+          class="flex flex-col items-center gap-1 py-2 text-gray-400"
+        >
+
+          <span class="text-lg">
+            ◉
+          </span>
+
+          <span class="text-[10px]">
+            Wallet
+          </span>
+
+        </a>
+
+      </div>
+
+    </nav>
+
+  </div>
+
+
+
+  <script src="./toast.js"></script>
+
+<script>
+
+async function loadWalletBalance() {
+
+  const walletBalance =
+    document.getElementById("walletBalance");
+
+ const token =
+  localStorage.getItem("token") ||
+  sessionStorage.getItem("token");
+
+  console.log("Token found:", !!token);
+  if (!token) {
+
+    console.log("No token found.");
+
+    walletBalance.textContent =
+      "₦0.00";
+
+    return;
+
+  }
+
+  try {
+
+    const response = await fetch(
+      "https://pk-booste.onrender.com/get-user",
+      {
+        method: "GET",
+
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      }
+    );
+
+    const data =
+      await response.json();
+
+    console.log("Wallet user:", data);
+
+    if (!response.ok || !data.success) {
+
+      console.error(
+        "Get user failed:",
+        data.message
+      );
+
+      walletBalance.textContent =
+        "₦0.00";
+
+      return;
+
+    }
+
+    const balance =
+      Number(data.user.balance || 0);
+
+    walletBalance.textContent =
+      "₦" +
+      balance.toLocaleString("en-NG", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+
+  } catch (error) {
+
+    console.error(
+      "Wallet balance error:",
+      error
+    );
+
+    walletBalance.textContent =
+      "₦0.00";
+
+  }
+
+}
+
+loadWalletBalance();
+
+let services = [];
+let servicesLoaded = false;
+let servicesLoading = true;
+
+const platform =
+  document.getElementById("platform");
+
+const service =
+  document.getElementById("service");
+
+const quantity =
+  document.getElementById("quantity");
+
+const targetLink =
+  document.getElementById("targetLink");
+
+const summaryPlatform =
+  document.getElementById("summaryPlatform");
+
+const summaryService =
+  document.getElementById("summaryService");
+
+const summaryQuantity =
+  document.getElementById("summaryQuantity");
+
+const summaryPrice =
+  document.getElementById("summaryPrice");
+
+const placeOrderBtn =
+  document.getElementById("placeOrderBtn");
+
+const formMessage =
+  document.getElementById("formMessage");
+
+async function loadServices() {
+  servicesLoading = true;
+  service.innerHTML = `<option value="">Loading services…</option>`;
+
+  try {
+
+    const response = await fetch(
+      "https://pk-booste.onrender.com/api/services"
+    );
+
+    const data = await response.json();
+
+    console.log("Services received:", data);
+
+    if (!response.ok || !data.success) {
+
+      showMessage(
+        "Unable to load services.",
+        "error"
+      );
+
+      return;
+
+    }
+
+    services = data.services || [];
+    servicesLoaded = true;
+
+    console.log(
+      "Total services loaded:",
+      services.length
+    );
+
+    // Refresh the dropdown after the async service request finishes.
+    renderMatchingServices();
+
+  } catch (error) {
+
+    service.innerHTML = `<option value="">Unable to load services — please refresh</option>`;
+    console.error(
+      "Load services error:",
+      error
+    );
+
+    showMessage(
+      "Unable to connect to the server.",
+      "error"
+    );
+
+  } finally {
+    servicesLoading = false;
+    renderMatchingServices();
+  }
+
+}
+
+loadServices();
+
+const boostType = document.getElementById("boostType");
+
+function renderMatchingServices() {
+  if (servicesLoading || !servicesLoaded) {
+    service.innerHTML = `<option value="">Loading services…</option>`;
+    return;
+  }
+  const selectedPlatform = platform.value;
+  const selectedType = boostType.value.toLowerCase();
+
+  service.innerHTML = `<option value="">Select service</option>`;
+
+  if (!selectedPlatform) {
+    service.innerHTML = `<option value="">Select a platform first</option>`;
+    updateSummary();
+    return;
+  }
+
+  const matchingServices = services.filter(function (item) {
+    const serviceId = String(item.service || item.serviceId || "");
+    const platformText = `${String(item.name || "")} ${String(item.category || "")} ${String(item.type || "")} ${String(item.description || "")}`.toLowerCase();
+    const serviceText = platformText;
+    const allowedFollowers = ["8288", "23425"].includes(serviceId);
+    const allowedLikes = serviceId === "21632";
+    const allowedViews = ["23148", "20884"].includes(serviceId);
+
+    let platformMatches = platformText.includes(selectedPlatform.toLowerCase()) ||
+      (selectedPlatform === "X" && /twitter|\\bx\\b/.test(platformText));
+    let typeMatches = !selectedType || serviceText.includes(selectedType);
+
+    // Provider names/categories can vary; use approved IDs as fallback.
+    if (selectedPlatform.toLowerCase() === "tiktok") {
+      if (selectedType.includes("follower") && allowedFollowers) {
+        platformMatches = true;
+        typeMatches = true;
+      } else if (selectedType.includes("like") && allowedLikes) {
+        platformMatches = true;
+        typeMatches = true;
+      } else if (selectedType.includes("view") && allowedViews) {
+        platformMatches = true;
+        typeMatches = true;
+      }
+    }
+    return platformMatches && typeMatches;
+  });
+
+  if (matchingServices.length === 0) {
+    service.innerHTML = `<option value="">No matching services found</option>`;
+    updateSummary();
+    return;
+  }
+
+  matchingServices.forEach(function (item) {
+    const option = document.createElement("option");
+    option.value = item.service;
+    option.textContent = `${item.name} — ₦${Number(item.price || 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per 1,000`;
+    option.dataset.price = item.price;
+    option.dataset.min = String(String(item.service) === "8288" ? 50 : (String(item.service) === "23425" ? 200 : item.min));
+    option.dataset.max = item.max;
+    service.appendChild(option);
+  });
+
+  updateSummary();
+}
+
+platform.addEventListener("change", renderMatchingServices);
+boostType.addEventListener("change", renderMatchingServices);
+
+service.addEventListener(
+  "change",
+  function () {
+
+    updateSummary();
+
+  }
+);
+
+quantity.addEventListener(
+  "input",
+  function () {
+
+    updateSummary();
+
+  }
+);
+
+document
+  .querySelectorAll(".quantityBtn")
+  .forEach(
+    function (button) {
+
+      button.addEventListener(
+        "click",
+        function () {
+
+          quantity.value =
+            button.dataset.quantity;
+
+          updateSummary();
+
+        }
+      );
+
+    }
+  );
+
+
+function serviceMinFromText(option) {
+  const text = option?.textContent || "";
+  const match = text.match(/(?:min(?:imum)?\s*[:=-]?\s*)(\d+)/i);
+  return match ? Number(match[1]) : 0;
+}
+
+function updateSummary() {
+
+  const selectedPlatform =
+    platform.value;
+
+  const selectedService =
+    service.value;
+
+  const selectedQuantity =
+    Number(quantity.value) || 0;
+
+
+  summaryPlatform.textContent =
+    selectedPlatform || "—";
+
+
+  summaryQuantity.textContent =
+    selectedQuantity.toLocaleString();
+
+
+  if (!selectedPlatform ||
+      !selectedService) {
+
+    summaryService.textContent =
+      "—";
+
+    summaryPrice.textContent =
+      "₦0";
+
+    return;
+
+  }
+
+
+  const selectedOption =
+    service.options[
+      service.selectedIndex
+    ];
+
+
+  if (!selectedOption) {
+
+    summaryService.textContent =
+      "—";
+
+    summaryPrice.textContent =
+      "₦0";
+
+    return;
+
+  }
+
+
+  const serviceName =
+    selectedOption.textContent;
+
+
+  const pricePer1000 =
+    Number(
+      selectedOption.dataset.price || 0
+    );
+
+
+  summaryService.textContent =
+    serviceName;
+
+
+  const totalPrice =
+    Math.ceil(
+      (selectedQuantity / 1000) *
+      pricePer1000
+    );
+
+
+  summaryPrice.textContent =
+    "₦" +
+    totalPrice.toLocaleString("en-NG");
+
+}
+
+placeOrderBtn.addEventListener(
+  "click",
+  async function () {
+
+    const selectedPlatform =
+      platform.value;
+
+    const selectedService =
+      service.value;
+
+    const link =
+      targetLink.value.trim();
+
+    const selectedQuantity =
+      Number(quantity.value);
+
+    if (!selectedPlatform) {
+
+      showMessage(
+        "Please select a social platform.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    if (!selectedService) {
+
+      showMessage(
+        "Please select a service.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    if (!link) {
+
+      showMessage(
+        "Please enter your social media link.",
+        "error"
+      );
+
+      targetLink.focus();
+
+      return;
+
+    }
+
+
+    const selectedOption =
+      service.options[
+        service.selectedIndex
+      ];
+
+    // Respect the selected provider service minimum.
+    // TikTok Followers service 8288 supports orders from 50.
+    const serviceMin =
+      String(selectedService) === "8288"
+        ? 50
+        : Number(selectedOption?.dataset?.min || serviceMinFromText(selectedOption) || 100);
+
+    if (
+      !selectedQuantity ||
+      selectedQuantity < serviceMin
+    ) {
+
+      showMessage(
+        `Minimum quantity for this service is ${serviceMin}.`,
+        "error"
+      );
+
+      quantity.min = String(serviceMin);
+      quantity.focus();
+
+      return;
+
+    }
+
+
+    const pricePer1000 =
+      Number(
+        selectedOption.dataset.price || 0
+      );
+
+
+    const totalPrice =
+      Math.ceil(
+        (selectedQuantity / 1000) *
+        pricePer1000
+      );
+
+    const token =
+      localStorage.getItem("token") ||
+      sessionStorage.getItem("token");
+
+
+    if (!token) {
+
+      showMessage(
+        "Please log in again.",
+        "error"
+      );
+
+      return;
+
+    }
+
+    // Prevent duplicate submissions and make the loading state visible.
+    placeOrderBtn.disabled = true;
+    placeOrderBtn.setAttribute("aria-busy", "true");
+    placeOrderBtn.innerHTML = `
+      <span class="inline-flex items-center justify-center gap-2">
+        <svg class="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity=".25" stroke-width="3"></circle>
+          <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
+        </svg>
+        Placing order...
+      </span>`;
+
+
+    try {
+
+      const response =
+        await fetch(
+          "https://pk-booste.onrender.com/api/orders",
+          {
+            method: "POST",
+
+            headers: {
+
+              "Content-Type":
+                "application/json",
+
+              "Authorization":
+                `Bearer ${token}`
+
+            },
+
+           body: JSON.stringify({
+
+  platform:
+    selectedPlatform,
+
+  serviceId:
+    selectedService,
+
+  serviceName:
+    selectedOption.textContent,
+
+  link:
+    link,
+
+  quantity:
+    selectedQuantity,
+
+  amount:
+    totalPrice
+
+})
+          }
+        );
+
+
+      const data =
+        await response.json();
+
+
+      console.log(
+        "Create order response:",
+        data
+      );
+
+
+      if (!response.ok || !data.success) {
+
+        showMessage(
+          data.message ||
+          "Unable to create order.",
+          "error"
+        );
+
+        return;
+
+      }
+
+      showMessage(
+        "Order placed successfully!",
+        "success"
+      );
+
+      if (
+        typeof data.balance !==
+        "undefined"
+      ) {
+
+        const walletBalance =
+          document.getElementById(
+            "walletBalance"
+          );
+
+        if (walletBalance) {
+
+          walletBalance.textContent =
+            "₦" +
+            Number(
+              data.balance
+            ).toLocaleString(
+              "en-NG",
+              {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
-            }).format(amount);
+              }
+            );
+
         }
 
-        async function loadWalletBalance() {
-            const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
-            const token = localStorage.getItem("token");
-            const API = localStorage.getItem("apiBaseUrl") || "https://pk-booste.onrender.com";
-            const balanceElement = document.getElementById("walletBalance");
+      }
 
-            // Render cached balance immediately, then replace it with the authoritative backend balance.
-            const cachedBalance = currentUser.balance ?? localStorage.getItem("walletBalance");
-            if (cachedBalance !== null && cachedBalance !== undefined && cachedBalance !== "") {
-                balanceElement.textContent = formatNaira(Number(cachedBalance));
-            }
+      targetLink.value = "";
 
-            if (!token) return;
-            try {
-                const response = await fetch(API + "/wallet", {
-                    headers: { Authorization: "Bearer " + token }
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.message || "Could not refresh wallet balance");
-                const balance = Number(data.balance || 0);
-                balanceElement.textContent = formatNaira(balance);
-                localStorage.setItem("walletBalance", String(balance));
-                localStorage.setItem("currentUser", JSON.stringify({ ...currentUser, balance }));
-            } catch (error) {
-                // Keep the cached balance visible if the API is temporarily unavailable.
-                console.warn("Wallet balance refresh failed:", error);
-            }
-        }
+      quantity.value = 1000;
 
-        platformCards.forEach((card) => {
-            card.addEventListener("click", () => {
-                selectedPlatform = card.dataset.platform;
+      updateSummary();
 
-                platformCards.forEach((item) => {
-                    item.classList.remove("border-[#7C3AED]", "bg-[#F8EFFF]", "ring-1", "ring-[#7C3AED]");
+      setTimeout(
+        function () {
 
-                    item.classList.add("border-[#EEE3EF]", "bg-white");
-                });
+          window.location.href =
+            "my-orders.html";
 
-                card.classList.remove("border-[#EEE3EF]", "bg-white");
-
-                card.classList.add("border-[#7C3AED]", "bg-[#F8EFFF]", "ring-1", "ring-[#7C3AED]");
-
-                selectedPlatformText.textContent = selectedPlatform;
-
-                selectionMessage.classList.remove("hidden");
-
-                pageMessage.classList.add("hidden");
-
-                // Bring the selected-platform summary and Continue button into view
-                // so the next action is obvious on both mobile and desktop.
-                requestAnimationFrame(() => {
-                    selectionMessage.scrollIntoView({
-                        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-                        block: "center"
-                    });
-                });
-            });
-        });
-
-        continueButton.addEventListener("click", () => {
-            if (!selectedPlatform) {
-                pageMessage.textContent = "Please select a platform first.";
-
-                pageMessage.classList.remove("hidden");
-
-                return;
-            }
-
-            localStorage.setItem("selectedPlatform", selectedPlatform);
-
-            window.location.href = "./services.html";
-        });
-
-        const moreButton = document.getElementById("moreButton");
-        const moreMenu = document.getElementById("moreMenu");
-
-        moreButton.addEventListener("click", () => {
-            moreMenu.classList.toggle("hidden");
-        });
-
-        const mobileMoreButton = document.getElementById("mobileMoreButton");
-        const mobileMoreMenu = document.getElementById("mobileMoreMenu");
-
-        mobileMoreButton.addEventListener("click", () => {
-            mobileMoreMenu.classList.toggle("hidden");
-        });
-
-        function logout() {
-            localStorage.removeItem("token");
-            localStorage.removeItem("currentUser");
-
-            window.location.href = "./login.html";
-        }
-
-        document.getElementById("logoutButton").addEventListener("click", logout);
-
-        document.getElementById("mobileLogoutButton").addEventListener("click", logout);
-
-        document.addEventListener("click", (event) => {
-            if (!moreButton.contains(event.target) && !moreMenu.contains(event.target)) {
-                moreMenu.classList.add("hidden");
-            }
-        });
-
-        loadWalletBalance();
-    </script>
+        },
+        1000
+      );
 
 
-    <script src="./toast.js"></script>\n</body>
+    } catch (error) {
+
+      console.error(
+        "Create order error:",
+        error
+      );
+
+
+      showMessage(
+        "Unable to connect to the server.",
+        "error"
+      );
+
+
+    } finally {
+
+      placeOrderBtn.disabled = false;
+      placeOrderBtn.removeAttribute("aria-busy");
+      placeOrderBtn.textContent = "Place Order";
+
+    }
+
+  }
+);
+
+function showMessage(
+  message,
+  type
+) {
+  formMessage.textContent = "";
+  formMessage.classList.add("hidden");
+
+  showToast(
+    message,
+    type === "error" ? "error" : "success",
+    {
+      title: type === "error" ? "Order notice" : "Order placed",
+      duration: type === "error" ? 5500 : 4200
+    }
+  );
+
+}
+
+    const logoutBtn =
+    document.getElementById("logoutBtn");
+
+  if (logoutBtn) {
+
+    logoutBtn.addEventListener(
+      "click",
+      () => {
+        localStorage.removeItem(
+          "token"
+        );
+        localStorage.removeItem(
+          "currentUser"
+        );
+        sessionStorage.removeItem(
+          "token"
+        );
+
+        sessionStorage.removeItem(
+          "currentUser"
+        );
+        window.location.replace(
+          "login.html"
+        );
+
+      }
+    );
+
+  }
+
+  </script>
+
+
+</body>
 
 </html>
-```
