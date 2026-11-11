@@ -364,6 +364,9 @@
   .-mt-7 {
     margin-top: calc(var(--spacing) * -7);
   }
+  .mt-0\.5 {
+    margin-top: calc(var(--spacing) * 0.5);
+  }
   .mt-1 {
     margin-top: var(--spacing);
   }
@@ -884,8 +887,8 @@
   .border-\[\#F3EDF5\] {
     border-color: #F3EDF5;
   }
-  .border-\[\#f6f8fa\] {
-    border-color: #f6f8fa;
+  .border-\[\#FCF9FF\] {
+    border-color: #FCF9FF;
   }
   .border-gray-100 {
     border-color: var(--color-gray-100);
