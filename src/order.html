@@ -52,7 +52,7 @@
     <div class="px-7 pt-8 pb-7">
 
       <a
-        href="account.html"
+        href="home.html"
         class="flex items-center gap-3"
       >
 
@@ -71,7 +71,7 @@
           <h1
             class="font-black text-xl tracking-tight text-[#7C3AED]"
           >
-            PK-<span class="text-purple-500">Boost</span>
+            PK-<span class="text-[#7C3AED]">Boost</span>
           </h1>
 
           <p
@@ -90,7 +90,7 @@
     <nav class="px-4 space-y-1.5">
 
       <a
-        href="account.html"
+        href="home.html"
         class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-[#7C3AED] transition"
       >
 
@@ -170,7 +170,7 @@
       <div class="flex items-center gap-3 mb-4">
 
         <div
-          class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold"
+          class="w-10 h-10 rounded-full bg-[#7C3AED]/10 text-[#7C3AED] flex items-center justify-center font-bold"
         >
           F
         </div>
@@ -214,7 +214,7 @@
       <div class="flex items-center justify-between">
 
         <a
-          href="account.html"
+          href="home.html"
           class="flex items-center gap-2.5"
         >
 
@@ -233,7 +233,7 @@
             class="font-black text-lg text-[#7C3AED]"
           >
 
-            PK-<span class="text-purple-500">Boost</span>
+            PK-<span class="text-[#7C3AED]">Boost</span>
 
           </h1>
 
@@ -241,7 +241,7 @@
 
 
         <div
-          class="w-9 h-9 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold"
+          class="w-9 h-9 rounded-full bg-[#7C3AED]/10 text-[#7C3AED] flex items-center justify-center font-bold"
         >
           F
         </div>
@@ -260,7 +260,7 @@
       <section>
 
         <p
-          class="text-purple-500 text-sm font-bold"
+          class="text-[#7C3AED] text-sm font-bold"
         >
           BOOST YOUR SOCIALS
         </p>
@@ -393,6 +393,7 @@
               <option value="Telegram">Telegram</option>
               <option value="WhatsApp">WhatsApp</option>
               <option value="Others">Others</option>
+              <option value="Numbers & Emails">Numbers &amp; Emails</option>
 
               <option value="X">
                 X / Twitter
@@ -548,7 +549,7 @@
           <button
             id="placeOrderBtn"
             type="button"
-            class="w-full mt-7 py-4 rounded-xl bg-purple-500 hover:bg-purple-600 text-white font-black transition shadow-lg shadow-purple-500/10"
+            class="w-full mt-7 py-4 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-black transition shadow-lg shadow-[#7C3AED]/10"
           >
 
             Place Order
@@ -688,7 +689,7 @@
           >
 
             <p
-              class="text-xs font-bold text-purple-600"
+              class="text-xs font-bold text-[#7C3AED]"
             >
               Important
             </p>
@@ -703,7 +704,7 @@
 
           </div>
 
-          <button id="summaryPlaceOrderBtn" type="button" class="w-full mt-5 py-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-extrabold shadow-lg shadow-purple-500/15">
+          <button id="summaryPlaceOrderBtn" type="button" class="w-full mt-5 py-4 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-extrabold shadow-lg shadow-[#7C3AED]/15">
             Place Order
           </button>
           <p class="text-xs text-center text-gray-400 mt-2">Your wallet will be charged after the provider accepts the order.</p>
@@ -719,7 +720,7 @@
         <div>
 
           <p
-            class="text-purple-500 text-xs font-bold uppercase tracking-wider"
+            class="text-[#7C3AED] text-xs font-bold uppercase tracking-wider"
           >
             Simple Process
           </p>
@@ -770,7 +771,7 @@
           >
 
             <div
-              class="w-10 h-10 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center font-black"
+              class="w-10 h-10 rounded-xl bg-purple-50 text-[#7C3AED] flex items-center justify-center font-black"
             >
               2
             </div>
@@ -836,7 +837,7 @@
       >
 
         <a
-          href="account.html"
+          href="home.html"
           class="flex flex-col items-center gap-1 py-2 text-gray-400"
         >
 
@@ -867,10 +868,7 @@
         </a>
 
 
-        <a href="order.html" aria-label="Boost / place order" class="relative flex flex-col items-center justify-start text-[#7C3AED] font-bold">
-  <span class="-mt-7 flex h-12 w-12 items-center justify-center rounded-full border-4 border-[#FCF9FF] bg-[#7C3AED] text-2xl font-medium leading-none text-white shadow-lg">+</span>
-  <span class="mt-0.5 text-[10px] font-bold text-[#7C3AED]">Boost</span>
-</a>
+        <a href="order.html" class="nav-link flex flex-col items-center justify-center gap-1" aria-label="Boost" style="color:#7C3AED;text-decoration:none"><span class="flex h-11 w-11 items-center justify-center rounded-full text-2xl font-bold text-white shadow-md" style="background:#7C3AED;line-height:1">+</span><span class="text-[10px] font-semibold" style="color:#7C3AED">Boost</span></a>
 
 
         <a
@@ -1612,6 +1610,9 @@ function showMessage(
   </script>
 
 
+<script id="pk-selected-platform-prefill">
+(function(){const params=new URLSearchParams(location.search);const selected=params.get('platform')||localStorage.getItem('pkBoosterSelectedPlatform');if(!selected)return;const select=document.getElementById('platform');if(!select)return;const match=[...select.options].find(o=>o.value.toLowerCase()===selected.toLowerCase());if(match){select.value=match.value;select.dispatchEvent(new Event('change',{bubbles:true}));}localStorage.removeItem('pkBoosterSelectedPlatform');})();
+</script>
 </body>
 
 </html>

@@ -52,7 +52,7 @@
             class="font-black text-xl tracking-tight text-[#7C3AED]"
           >
 
-            PK-<span class="text-orange-500">
+            PK-<span class="text-[#7C3AED]">
               Boost
             </span>
 
@@ -156,7 +156,7 @@
       <div class="flex items-center gap-3 mb-4">
 
         <div
-          class="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold"
+          class="w-10 h-10 rounded-full bg-[#7C3AED]/10 text-[#7C3AED] flex items-center justify-center font-bold"
         >
 
           F
@@ -223,7 +223,7 @@
             class="font-black text-lg text-[#7C3AED]"
           >
 
-            PK-<span class="text-orange-500">
+            PK-<span class="text-[#7C3AED]">
               Boost
             </span>
 
@@ -233,7 +233,7 @@
 
 
         <div
-          class="w-9 h-9 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold"
+          class="w-9 h-9 rounded-full bg-[#7C3AED]/10 text-[#7C3AED] flex items-center justify-center font-bold"
         >
 
           F
@@ -265,7 +265,7 @@
 
 
         <p
-          class="text-orange-500 text-sm font-bold mt-5"
+          class="text-[#7C3AED] text-sm font-bold mt-5"
         >
 
           WE'RE HERE TO HELP
@@ -333,7 +333,7 @@
 
 
           <button id="startLiveChat" type="button"
-            class="w-full mt-5 py-3.5 rounded-xl bg-[#7C3AED] hover:bg-[#093e4e] text-white font-bold transition">
+            class="w-full mt-5 py-3.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold transition">
             Start Live Chat
           </button>
 
@@ -391,7 +391,7 @@
         >
 
           <div
-            class="w-12 h-12 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center text-xl"
+            class="w-12 h-12 rounded-2xl bg-[#7C3AED]/5 text-[#7C3AED] flex items-center justify-center text-xl"
           >
 
             @
@@ -443,7 +443,7 @@
 
 
         <div
-          class="absolute -right-16 -bottom-20 w-52 h-52 rounded-full bg-orange-500/10"
+          class="absolute -right-16 -bottom-20 w-52 h-52 rounded-full bg-[#7C3AED]/10"
         ></div>
 
 
@@ -454,7 +454,7 @@
           <div>
 
             <p
-              class="text-orange-400 text-xs font-bold uppercase tracking-wider"
+              class="text-[#7C3AED] text-xs font-bold uppercase tracking-wider"
             >
 
               Having an issue?
@@ -485,7 +485,7 @@
 
           <a
             href="my-orders.html"
-            class="shrink-0 inline-flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3.5 rounded-xl font-bold transition"
+            class="shrink-0 inline-flex items-center justify-center bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-6 py-3.5 rounded-xl font-bold transition"
           >
 
             View My Orders
@@ -503,7 +503,7 @@
         <div class="text-center">
 
           <p
-            class="text-orange-500 text-xs font-bold uppercase tracking-wider"
+            class="text-[#7C3AED] text-xs font-bold uppercase tracking-wider"
           >
 
             FAQ
@@ -735,7 +735,7 @@
       >
 
         <div
-          class="w-12 h-12 mx-auto rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center text-xl"
+          class="w-12 h-12 mx-auto rounded-2xl bg-[#7C3AED]/5 text-[#7C3AED] flex items-center justify-center text-xl"
         >
 
           !
@@ -763,7 +763,7 @@
 
         <a
           href="mailto:supportogboosting@gmail.com?subject=OG%20Boosting%20Support"
-          class="inline-flex mt-5 px-6 py-3 rounded-xl bg-[#7C3AED] hover:bg-[#093e4e] text-white font-bold transition"
+          class="inline-flex mt-5 px-6 py-3 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold transition"
         >
 
           Contact Support
@@ -825,10 +825,7 @@
         </a>
 
 
-        <a href="order.html" aria-label="Boost / place order" class="relative flex flex-col items-center justify-start text-[#7C3AED] font-bold">
-  <span class="-mt-7 flex h-12 w-12 items-center justify-center rounded-full border-4 border-[#FCF9FF] bg-[#7C3AED] text-2xl font-medium leading-none text-white shadow-lg">+</span>
-  <span class="mt-0.5 text-[10px] font-bold text-[#7C3AED]">Boost</span>
-</a>
+        <a href="order.html" class="nav-link flex flex-col items-center justify-center gap-1" aria-label="Boost" style="color:#7C3AED;text-decoration:none"><span class="flex h-11 w-11 items-center justify-center rounded-full text-2xl font-bold text-white shadow-md" style="background:#7C3AED;line-height:1">+</span><span class="text-[10px] font-semibold" style="color:#7C3AED">Boost</span></a>
 
 
         <a
@@ -885,7 +882,7 @@
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
     async function loadSupportConversation(showError = false) {
-      if (!supportToken) { chatMessages.innerHTML = '<div class="text-sm text-gray-600">Please <a class="text-orange-600 font-bold underline" href="login.html">log in</a> to use live chat. You can still contact us on WhatsApp or email.</div>'; return; }
+      if (!supportToken) { chatMessages.innerHTML = '<div class="text-sm text-gray-600">Please <a class="text-[#7C3AED] font-bold underline" href="login.html">log in</a> to use live chat. You can still contact us on WhatsApp or email.</div>'; return; }
       try { const r = await fetch(OG_SUPPORT_API + '/api/support/conversation', {headers:{Authorization:'Bearer '+supportToken}}); const d = await r.json(); if(!r.ok || !d.success) throw new Error(d.message || 'Unable to load chat.'); chatConversation=d.conversation; renderChatMessages(); chatNotice.classList.add('hidden'); } catch(e) { if(showError) { chatNotice.textContent=e.message || 'Live chat is temporarily unavailable.'; chatNotice.classList.remove('hidden'); } }
     }
     document.getElementById('startLiveChat')?.addEventListener('click', async () => { chatPanel.classList.remove('hidden'); await loadSupportConversation(true); if(chatRefreshTimer) clearInterval(chatRefreshTimer); chatRefreshTimer=setInterval(()=>loadSupportConversation(false),8000); document.getElementById('liveChatInput')?.focus(); });
